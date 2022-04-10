@@ -1,30 +1,32 @@
 package main
 
 import (
-	"math/rand"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
 
+const space = ' '
+
 var empt = []rune{}
 
-var glyphs = []rune{'@', '#', '&', '*', '=', '%', 'Z', 'A'}
+const multiDigit float32 = 10.0
 
-var glen = len(glyphs)
-
-var (
-	lastX = 0
-	lastY = 0
-)
-
-func drawChars(s tcell.Screen) {
-
+func drawChars(s tcell.Screen, cpuPc float32) {
 	w, h := s.Size()
+	w /= 2
+	h /= 2
 
-	i := rand.Intn(glen)
-	c := glyphs[i]
+	cpuStr := fmt.Sprintf("%.2f", cpuPc)
+	if cpuPc < multiDigit {
+		s.SetContent(w, h, space, empt, tcell.StyleDefault)
+		w--
+	}
 
-	s.SetContent(w/2, h/2, c, empt, tcell.StyleDefault)
+	for i := len(cpuStr) - 1; i >= 0; i-- {
+		s.SetContent(w, h, rune(cpuStr[i]), empt, tcell.StyleDefault)
+		w--
+	}
 
 	s.Show()
 }

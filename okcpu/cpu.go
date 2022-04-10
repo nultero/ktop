@@ -33,6 +33,7 @@ func Poll(lastIdle, sum *int) (float32, error) {
 	pcUsed := delta - idle
 
 	percentage := 100 * (float32(pcUsed) / float32(delta))
+
 	// percentage = trunc(percentage, *prec)
 	return percentage, nil
 }

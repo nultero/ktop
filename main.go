@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	paintRate = 500 * time.Millisecond
-	idle      = 0
-	cpuSum    = 0
-	precision = 0.05 // weird issues with float conversions, might not use
+	paintRate   = 500 * time.Millisecond
+	idle        = 0
+	cpuSum      = 0
+	percentages = []float32{}
+	percentsBuf = 8
 )
 
 func init() {
@@ -37,8 +38,6 @@ func main() {
 		}
 		return
 	}
-
-	const rate = 100 * time.Millisecond
 
 	s, err := tcell.NewScreen()
 	if err != nil {
@@ -76,10 +75,15 @@ func main() {
 		select {
 		case <-quit:
 			s.Fini()
-			break
-		case <-time.After(rate):
+			os.Exit(0)
+		case <-time.After(paintRate):
 		}
-		// makebox(s)
-		drawChars(s)
+
+		cpuPc, err := okcpu.Poll(&idle, &cpuSum)
+		if err != nil {
+			panic(err)
+		}
+
+		drawChars(s, cpuPc)
 	}
 }
