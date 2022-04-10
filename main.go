@@ -13,6 +13,7 @@ var (
 	paintRate = 500 * time.Millisecond
 	idle      = 0
 	cpuSum    = 0
+	precision = 0.05 // weird issues with float conversions, might not use
 )
 
 func init() {
@@ -28,7 +29,8 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println(cpuPc)
+
+				fmt.Printf("%.2f\n", cpuPc)
 				time.Sleep(paintRate)
 			}
 

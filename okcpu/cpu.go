@@ -2,6 +2,7 @@ package okcpu
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -32,6 +33,7 @@ func Poll(lastIdle, sum *int) (float32, error) {
 	pcUsed := delta - idle
 
 	percentage := 100 * (float32(pcUsed) / float32(delta))
+	// percentage = trunc(percentage, *prec)
 	return percentage, nil
 }
 
@@ -93,4 +95,8 @@ statloop: // probably a simpler way to do this
 	}
 
 	return bytes, nil
+}
+
+func trunc(num, closestUnit float64) float64 {
+	return math.Round(num/closestUnit) * closestUnit
 }
