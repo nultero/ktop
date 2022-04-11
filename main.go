@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"oktop/okcpu"
+	"oktop/styles"
 	"os"
 	"time"
 
@@ -14,7 +15,6 @@ var (
 	idle        = 0
 	cpuSum      = 0
 	percentages = []float32{}
-	percentsBuf = 8
 )
 
 func init() {
@@ -23,15 +23,21 @@ func init() {
 
 func main() {
 	args := os.Args[1:]
+
 	if len(args) > 0 {
 		if args[0] == "t" {
 			for {
-				cpuPc, err := okcpu.Poll(&idle, &cpuSum)
+				cpuPc, err := okcpu.PollCPU(&idle, &cpuSum)
 				if err != nil {
 					panic(err)
 				}
 
-				fmt.Printf("%.2f\n", cpuPc)
+				mem, err := okcpu.PollMem()
+				if err != nil {
+					panic(err)
+				}
+
+				fmt.Printf("cpu: %.2f\nmeminfo: %v\n", cpuPc, mem)
 				time.Sleep(paintRate)
 			}
 
@@ -47,9 +53,7 @@ func main() {
 		panic(err)
 	}
 
-	s.SetStyle(tcell.StyleDefault.
-		Foreground(tcell.ColorBlack).
-		Background(tcell.ColorBlack))
+	s.SetStyle(styles.AllBlack())
 	s.Clear()
 
 	quit := make(chan struct{})
@@ -71,19 +75,26 @@ func main() {
 		}
 	}()
 
+	sty := styles.CyanFg()
+
+renderloop:
 	for {
 		select {
 		case <-quit:
-			s.Fini()
-			os.Exit(0)
+			break renderloop
+
 		case <-time.After(paintRate):
 		}
 
-		cpuPc, err := okcpu.Poll(&idle, &cpuSum)
+		cpuPc, err := okcpu.PollCPU(&idle, &cpuSum)
 		if err != nil {
 			panic(err)
 		}
 
-		drawChars(s, cpuPc)
+		mem, err := okcpu.PollMem()
+
+		drawChars(s, cpuPc, mem, sty)
 	}
+
+	s.Fini()
 }

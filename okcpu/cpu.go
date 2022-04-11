@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Poll(lastIdle, sum *int) (float32, error) {
+func PollCPU(lastIdle, sum *int) (float32, error) {
 	bytes, err := cpuBytes()
 	if err != nil {
 		return 0.0, err
