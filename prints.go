@@ -8,32 +8,42 @@ import (
 
 const space = ' '
 const cpuTxt = "CPU: "
+const memTxt = "RAM: "
+
+var texts = []string{cpuTxt, memTxt}
 
 var empt = []rune{}
 
 const multiDigit float32 = 10.0
 
-func drawChars(s tcell.Screen, cpuPc, mem float32, sty tcell.Style) {
-	w, h := s.Size()
-	w /= 2
+func drawChars(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style) {
+	width, h := scr.Size()
+	width /= 2
 	h /= 2
 
 	cpuStr := fmt.Sprintf("%.2f", cpuPc)
+	memStr := fmt.Sprintf("%.2f", mem)
 
-	for _, r := range cpuTxt {
-		s.SetContent(w, h, r, empt, sty)
-		w++
+	strs := []string{cpuStr, memStr}
+
+	for idx, s := range strs {
+		w := width
+		txt := texts[idx]
+		for _, r := range txt {
+			scr.SetContent(w, h+idx, r, empt, sty)
+			w++
+		}
+
+		if len(s) < 5 {
+			scr.SetContent(w, h+idx, space, empt, tcell.StyleDefault)
+			w++
+		}
+
+		for i := 0; i < len(s); i++ {
+			scr.SetContent(w, h+idx, rune(s[i]), empt, sty)
+			w++
+		}
 	}
 
-	if len(cpuStr) < 5 {
-		s.SetContent(w, h, space, empt, tcell.StyleDefault)
-		w++
-	}
-
-	for i := 0; i < len(cpuStr); i++ {
-		s.SetContent(w, h, rune(cpuStr[i]), empt, sty)
-		w++
-	}
-
-	s.Show()
+	scr.Show()
 }

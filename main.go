@@ -37,7 +37,7 @@ func main() {
 					panic(err)
 				}
 
-				fmt.Printf("cpu: %.2f\nmeminfo: %v\n", cpuPc, mem)
+				fmt.Printf("cpu: %.2f\nmeminfo: %.2f\n", cpuPc, mem)
 				time.Sleep(paintRate)
 			}
 
@@ -92,6 +92,9 @@ renderloop:
 		}
 
 		mem, err := okcpu.PollMem()
+		if err != nil {
+			panic(err)
+		}
 
 		drawChars(s, cpuPc, mem, sty)
 	}
