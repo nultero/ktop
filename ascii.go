@@ -1,3 +1,9 @@
 package main
 
-// var gopher = []string{}
+var tumbo = []string{
+	"       /^__^\\         ",
+	"      / .  . \\        ",
+	"     /        \\       ",
+	"    /          \\      ",
+	"    \\__________/      ",
+}

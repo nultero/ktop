@@ -6,9 +6,11 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-const space = ' '
-const cpuTxt = "CPU: "
-const memTxt = "RAM: "
+const (
+	space  = ' '
+	cpuTxt = "CPU: "
+	memTxt = "RAM: "
+)
 
 var texts = []string{cpuTxt, memTxt}
 
@@ -42,6 +44,18 @@ func drawChars(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style) {
 		for i := 0; i < len(s); i++ {
 			scr.SetContent(w, h+idx, rune(s[i]), empt, sty)
 			w++
+		}
+	}
+
+	scr.Show()
+}
+
+func redraw(scr tcell.Screen, sty tcell.Style) {
+	w, h := scr.Size()
+
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			scr.SetContent(i, j, space, empt, sty)
 		}
 	}
 

@@ -1,4 +1,4 @@
-package okcpu
+package kproc
 
 import "testing"
 

@@ -1,4 +1,4 @@
-module oktop
+module ktop
 
 go 1.18
 

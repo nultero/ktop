@@ -8,6 +8,12 @@ func AllBlack() tcell.Style {
 		Background(tcell.ColorBlack)
 }
 
+func Blk() tcell.Style {
+	return tcell.StyleDefault.
+		Foreground(tcell.ColorBlack.TrueColor()).
+		Background(tcell.ColorBlack.TrueColor())
+}
+
 func BlueFg() tcell.Style {
 	return tcell.StyleDefault.
 		Foreground(tcell.ColorBlue).
@@ -15,7 +21,12 @@ func BlueFg() tcell.Style {
 }
 
 func CyanFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorLightCyan)
+}
+
+func GreenFg() tcell.Style {
 	return tcell.StyleDefault.
-		Foreground(tcell.ColorDarkCyan).
+		Foreground(tcell.ColorGreen).
 		Background(tcell.ColorBlack)
 }
