@@ -3,6 +3,7 @@ package main
 import (
 	"ktop/kproc"
 	"ktop/styles"
+	"os"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -20,9 +21,10 @@ func init() {
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 }
 
-// TODO porcelain flag for logging metrics?
-
 func main() {
+
+	parseArgs(os.Args[1:])
+
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		panic(err)
@@ -83,12 +85,24 @@ renderloop:
 		}
 
 		cpuStamps = append(cpuStamps, cpuPc)
-		if len(cpuStamps) > 30 { // arbitrary for now
+		if len(cpuStamps) > 30 { // TODO arbitrary stamp lens for now
 			cpuStamps = cpuStamps[1:]
 		}
 
-		drawChars(screen, cpuPc, mem, sty, cpuStamps)
+		if isDrawable(screen.Size()) {
+			stdDraw(screen, cpuPc, mem, sty, cpuStamps)
+		} else {
+			invalidSzDraw(screen, sty)
+		}
 	}
 
 	screen.Fini()
+}
+
+func isDrawable(x, y int) bool {
+	if x < 80 || y < 24 {
+		return false
+	}
+
+	return true
 }

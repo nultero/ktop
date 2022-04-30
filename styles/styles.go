@@ -30,3 +30,8 @@ func GreenFg() tcell.Style {
 		Foreground(tcell.ColorGreen).
 		Background(tcell.ColorBlack)
 }
+
+func InvalidRed() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorRed)
+}

@@ -21,7 +21,8 @@ var empt = []rune{}
 
 const multiDigit float32 = 10.0
 
-func drawChars(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []float32) {
+// Standard draw of whichever screen the focus happens to be on.
+func stdDraw(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []float32) {
 
 	// TODOOOO need a minimum area to draw graphs for, need checks upfront
 
@@ -29,7 +30,7 @@ func drawChars(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []f
 	width = (width / 2) + 50
 	h /= 2
 
-	start := width + 10
+	start := width + 5
 
 	for i := start; i > 0; i-- {
 		scr.SetContent(i, h-1, '─', empt, sty)
@@ -95,11 +96,42 @@ func drawChars(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []f
 }
 
 func redraw(scr tcell.Screen, sty tcell.Style) {
+
+	// TODO rename this func and docstring it better so I don't come back confused
+
 	w, h := scr.Size()
 
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
 			scr.SetContent(i, j, space, empt, sty)
+		}
+	}
+
+	scr.Show()
+}
+
+/*
+
+	Invalid screen size stuff below
+
+*/
+
+var invals = []string{
+	" screen size invalid;",
+	" needs at least 80 spaces width",
+	" and 24 height"}
+
+func invalidSzDraw(scr tcell.Screen, sty tcell.Style) {
+	w, h := scr.Size()
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			scr.SetContent(i, j, space, empt, sty)
+		}
+	}
+
+	for i, s := range invals {
+		for idx, r := range s {
+			scr.SetContent(idx, i, r, empt, styles.InvalidRed())
 		}
 	}
 
