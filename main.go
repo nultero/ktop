@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"ktop/kproc"
 	"ktop/styles"
-	"os"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -22,54 +20,25 @@ func init() {
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 }
 
-// TODO porcelain flag for logging metrics
+// TODO porcelain flag for logging metrics?
 
 func main() {
-
-	args := os.Args[1:]
-
-	if len(args) > 0 {
-		if args[0] == "t" {
-			for {
-				cpuPc, err := kproc.PollCPU(&idle, &cpuSum)
-				if err != nil {
-					panic(err)
-				}
-
-				mem, err := kproc.PollMem()
-				if err != nil {
-					panic(err)
-				}
-
-				err = kproc.Top()
-				if err != nil {
-					panic(err)
-				}
-
-				fmt.Printf("cpu: %.2f\nmeminfo: %.2f\n\n", cpuPc, mem)
-				time.Sleep(paintRate)
-			}
-
-		}
-		return
-	}
-
-	s, err := tcell.NewScreen()
+	screen, err := tcell.NewScreen()
 	if err != nil {
 		panic(err)
 	}
-	if err = s.Init(); err != nil {
+	if err = screen.Init(); err != nil {
 		panic(err)
 	}
 
-	s.HideCursor()
-	s.SetStyle(styles.Blk())
-	s.Clear()
+	screen.HideCursor()
+	screen.SetStyle(styles.Blk())
+	screen.Clear()
 
 	quit := make(chan struct{})
 	go func() {
 		for {
-			ev := s.PollEvent()
+			ev := screen.PollEvent()
 			switch ev := ev.(type) {
 			case *tcell.EventKey:
 				switch ev.Key() {
@@ -77,16 +46,17 @@ func main() {
 					close(quit)
 					return
 				case tcell.KeyCtrlL:
-					s.Sync()
+					screen.Sync()
 				}
 			case *tcell.EventResize:
 				needsRedraw = true
-				s.Sync()
+				screen.Sync()
 			}
 		}
 	}()
 
 	sty := styles.CyanFg()
+	cpuStamps := []float32{}
 
 renderloop:
 	for {
@@ -108,12 +78,17 @@ renderloop:
 		}
 
 		if needsRedraw {
-			redraw(s, styles.AllBlack())
+			redraw(screen, styles.AllBlack())
 			needsRedraw = false
 		}
 
-		drawChars(s, cpuPc, mem, sty)
+		cpuStamps = append(cpuStamps, cpuPc)
+		if len(cpuStamps) > 30 { // arbitrary for now
+			cpuStamps = cpuStamps[1:]
+		}
+
+		drawChars(screen, cpuPc, mem, sty, cpuStamps)
 	}
 
-	s.Fini()
+	screen.Fini()
 }

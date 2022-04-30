@@ -3,7 +3,7 @@ package main
 // TODO? -- I am assuming braille codepoints render alright across terminals / fonts
 // double check
 
-var runes = []rune{
+var dotrunes = []rune{
 	' ',
 	'⡀',
 	'⡄',
