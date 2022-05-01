@@ -9,11 +9,18 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
+/*
+	TODO config somewhere
+*/
+
 var (
 	paintRate   = 500 * time.Millisecond
-	idle        = 0
+	ramPollRate = 30 * time.Second
+	lci         = 0 // last CPU idle %, used for PollCPU
 	cpuSum      = 0
-	percentages = []float32{}
+	cpuStamps   = []float32{}
+	ramStamps   = []float32{}
+
 	needsRedraw = false
 )
 
@@ -58,7 +65,8 @@ func main() {
 	}()
 
 	sty := styles.CyanFg()
-	cpuStamps := []float32{}
+	inactiveSty := sty.Foreground(tcell.ColorGray)
+	// sty := styles.Matrix()
 
 renderloop:
 	for {
@@ -69,7 +77,7 @@ renderloop:
 		case <-time.After(paintRate):
 		}
 
-		cpuPc, err := kproc.PollCPU(&idle, &cpuSum)
+		cpuPc, err := kproc.PollCPU(&lci, &cpuSum)
 		if err != nil {
 			panic(err)
 		}
@@ -79,18 +87,18 @@ renderloop:
 			panic(err)
 		}
 
-		if needsRedraw {
-			redraw(screen, styles.AllBlack())
+		if needsRedraw { // TODO fix drawing twice, redraw + stdDraw is bad
+			redraw(screen, sty)
 			needsRedraw = false
 		}
 
 		cpuStamps = append(cpuStamps, cpuPc)
-		if len(cpuStamps) > 30 { // TODO arbitrary stamp lens for now
+		if len(cpuStamps) > 30 { // TODO arbitrary stamp lens for now; clean up later
 			cpuStamps = cpuStamps[1:]
 		}
 
 		if isDrawable(screen.Size()) {
-			stdDraw(screen, cpuPc, mem, sty, cpuStamps)
+			stdDraw(screen, cpuPc, mem, sty, inactiveSty, cpuStamps)
 		} else {
 			invalidSzDraw(screen, sty)
 		}
@@ -100,7 +108,7 @@ renderloop:
 }
 
 func isDrawable(x, y int) bool {
-	if x < 80 || y < 24 {
+	if x < 30 || y < 16 {
 		return false
 	}
 

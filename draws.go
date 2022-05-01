@@ -22,24 +22,26 @@ var empt = []rune{}
 const multiDigit float32 = 10.0
 
 // Standard draw of whichever screen the focus happens to be on.
-func stdDraw(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []float32) {
-
-	// TODOOOO need a minimum area to draw graphs for, need checks upfront
+func stdDraw(scr tcell.Screen,
+	cpuPc, mem float32,
+	sty, inactiveSty tcell.Style,
+	stamps []float32) {
 
 	width, h := scr.Size()
-	width = (width / 2) + 50
+	// width = (width / 2) + 10
 	h /= 2
+	width -= 3
 
-	start := width + 5
+	// start := width + 10
 
-	for i := start; i > 0; i-- {
-		scr.SetContent(i, h-1, '─', empt, sty)
+	for i := width; i > 0; i-- {
+		scr.SetContent(i, h-1, '─', empt, inactiveSty)
 	}
 
 	// TODOOO clean up this blunt impl of left-shifting graph grid area
 	// for x := start - 1; x > 2; x-- {
 	// for x := 2; x < start-1; x++ {
-	for x := 2; x < start; x++ {
+	for x := 2; x < width; x++ {
 		for y := h - 2; y > 1; y-- {
 			prv, _, _, _ := scr.GetContent(x+1, y)
 			scr.SetContent(x, y, prv, empt, sty)
@@ -51,12 +53,12 @@ func stdDraw(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []flo
 	dots := int(math.Round(float64(dotmaxh) * (float64(cpuPc) / 100.0)))
 	for subh > 1 {
 		if dots == 0 {
-			scr.SetContent(start, subh, space, empt, sty)
+			scr.SetContent(width, subh, space, empt, sty)
 		} else if dots >= 4 {
-			scr.SetContent(start, subh, dotrunes[4], empt, sty)
+			scr.SetContent(width, subh, dotrunes[4], empt, sty)
 			dots -= 4
 		} else {
-			scr.SetContent(start, subh, dotrunes[dots], empt, sty)
+			scr.SetContent(width, subh, dotrunes[dots], empt, sty)
 			dots -= dots
 		}
 
@@ -69,25 +71,37 @@ func stdDraw(scr tcell.Screen, cpuPc, mem float32, sty tcell.Style, stamps []flo
 	strs := []string{cpuStr, memStr}
 
 	for idx, s := range strs {
-		w := width
+		w := width - 10
 		txt := texts[idx]
+
+		in := false
 
 		if idx == 0 {
 			scr.SetContent(w-2, h, arrow, empt, sty)
+			in = true
 		}
 
 		for _, r := range txt {
-			scr.SetContent(w, h+idx, r, empt, sty)
+			if !in {
+				scr.SetContent(w, h+idx, r, empt, inactiveSty)
+			} else {
+				scr.SetContent(w, h+idx, r, empt, sty)
+			}
 			w++
 		}
 
 		if len(s) < 5 {
-			scr.SetContent(w, h+idx, space, empt, styles.AllBlack())
+			scr.SetContent(w, h+idx, space, empt, sty)
 			w++
 		}
 
 		for i := 0; i < len(s); i++ {
-			scr.SetContent(w, h+idx, rune(s[i]), empt, sty)
+			if !in {
+				scr.SetContent(w, h+idx, rune(s[i]), empt, inactiveSty)
+			} else {
+				scr.SetContent(w, h+idx, rune(s[i]), empt, sty)
+			}
+
 			w++
 		}
 	}
@@ -118,11 +132,26 @@ func redraw(scr tcell.Screen, sty tcell.Style) {
 
 var invals = []string{
 	" screen size invalid;",
-	" needs at least 80 spaces width",
-	" and 24 height"}
+	" needs at least 30 spaces width", // TODO clean up the invalid size jank/mismatch possibilities
+	" and 18 height"}
 
 func invalidSzDraw(scr tcell.Screen, sty tcell.Style) {
 	w, h := scr.Size()
+	red := styles.InvalidRed()
+
+	if h < 3 { // can't even display the invalid stuff;
+		str := ""
+		for _, s := range invals {
+			str += s
+		}
+
+		for i, r := range str {
+			scr.SetContent(i, 0, r, empt, red)
+		}
+
+		return
+	}
+
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
 			scr.SetContent(i, j, space, empt, sty)
@@ -131,7 +160,7 @@ func invalidSzDraw(scr tcell.Screen, sty tcell.Style) {
 
 	for i, s := range invals {
 		for idx, r := range s {
-			scr.SetContent(idx, i, r, empt, styles.InvalidRed())
+			scr.SetContent(idx, i, r, empt, red)
 		}
 	}
 

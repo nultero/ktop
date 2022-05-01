@@ -15,9 +15,8 @@ func Blk() tcell.Style {
 }
 
 func BlueFg() tcell.Style {
-	return tcell.StyleDefault.
-		Foreground(tcell.ColorBlue).
-		Background(tcell.ColorBlack)
+	return AllBlack().
+		Foreground(tcell.ColorBlue)
 }
 
 func CyanFg() tcell.Style {
@@ -26,9 +25,15 @@ func CyanFg() tcell.Style {
 }
 
 func GreenFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorGreen)
+}
+
+func Matrix() tcell.Style {
+	c := tcell.NewRGBColor(0, 210, 17)
 	return tcell.StyleDefault.
-		Foreground(tcell.ColorGreen).
-		Background(tcell.ColorBlack)
+		Foreground(c).
+		Background(tcell.ColorBlack.TrueColor())
 }
 
 func InvalidRed() tcell.Style {
