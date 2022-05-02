@@ -2,7 +2,7 @@ package main
 
 import (
 	"ktop/kproc"
-	"ktop/styles"
+	"ktop/ktdata"
 	"os"
 	"time"
 
@@ -13,17 +13,6 @@ import (
 	TODO config somewhere
 */
 
-var (
-	paintRate   = 500 * time.Millisecond
-	ramPollRate = 30 * time.Second
-	lci         = 0 // last CPU idle %, used for PollCPU
-	cpuSum      = 0
-	cpuStamps   = []float32{}
-	ramStamps   = []float32{}
-
-	needsRedraw = false
-)
-
 func init() {
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 }
@@ -31,6 +20,8 @@ func init() {
 func main() {
 
 	parseArgs(os.Args[1:])
+
+	stt := ktdata.DefaultState()
 
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -41,7 +32,7 @@ func main() {
 	}
 
 	screen.HideCursor()
-	screen.SetStyle(styles.Blk())
+	screen.SetStyle(stt.ColorTheme.MainStyle)
 	screen.Clear()
 
 	quit := make(chan struct{})
@@ -58,14 +49,12 @@ func main() {
 					screen.Sync()
 				}
 			case *tcell.EventResize:
-				needsRedraw = true
+				stt.NeedsRedraw = true
 				screen.Sync()
 			}
 		}
 	}()
 
-	sty := styles.CyanFg()
-	inactiveSty := sty.Foreground(tcell.ColorGray)
 	// sty := styles.Matrix()
 
 renderloop:
@@ -74,34 +63,30 @@ renderloop:
 		case <-quit:
 			break renderloop
 
-		case <-time.After(paintRate):
+		case <-time.After(stt.PollRate):
 		}
 
-		cpuPc, err := kproc.PollCPU(&lci, &cpuSum)
+		err := kproc.PollCPU(&stt)
 		if err != nil {
 			panic(err)
 		}
 
-		mem, err := kproc.PollMem()
+		err = kproc.PollMem(&stt)
 		if err != nil {
 			panic(err)
 		}
 
-		if needsRedraw { // TODO fix drawing twice, redraw + stdDraw is bad
-			redraw(screen, sty)
-			needsRedraw = false
-		}
-
-		cpuStamps = append(cpuStamps, cpuPc)
-		if len(cpuStamps) > 30 { // TODO arbitrary stamp lens for now; clean up later
-			cpuStamps = cpuStamps[1:]
-		}
+		// if stt.NeedsRedraw { // TODO fix drawing twice, redraw + stdDraw is bad
+		// 	redraw(screen, stt.)
+		// 	stt.NeedsRedraw = false
+		// }
 
 		if isDrawable(screen.Size()) {
-			stdDraw(screen, cpuPc, mem, sty, inactiveSty, cpuStamps)
-		} else {
-			invalidSzDraw(screen, sty)
+			stdDraw(screen, &stt)
 		}
+		//  else {
+		// 	invalidSzDraw(screen, sty)
+		// }
 	}
 
 	screen.Fini()

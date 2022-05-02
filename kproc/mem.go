@@ -2,22 +2,34 @@ package kproc
 
 import (
 	"fmt"
+	"ktop/ktdata"
 	"os"
 	"strconv"
 )
 
 const spc = ' '
 
-func PollMem() (float32, error) {
+func PollMem(stt *ktdata.State) error {
 	bytes, err := memBytes()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	return getMemFlt(bytes)
+	mem, err := getMem(bytes)
+	if err != nil {
+		return err
+	}
+
+	stt.RamStamps = append(stt.RamStamps, mem)
+
+	if len(stt.RamStamps) > stt.MaxStamps {
+		stt.RamStamps = stt.RamStamps[1:]
+	}
+
+	return nil
 }
 
-func getMemFlt(bytes []byte) (float32, error) {
+func getMem(bytes []byte) (float32, error) {
 	kilobytes := []int{}
 	membytes := []byte{}
 

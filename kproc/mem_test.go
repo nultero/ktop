@@ -11,7 +11,7 @@ func Test_PollMem(t *testing.T) {
 			"MemAvailable:   10625028 kB",
 	)
 
-	mf, err := getMemFlt(testBytes)
+	mf, err := getMem(testBytes)
 	if err != nil {
 		t.Errorf("error getting membytes: %v", err)
 	}

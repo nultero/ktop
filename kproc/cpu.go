@@ -2,21 +2,21 @@ package kproc
 
 import (
 	"fmt"
-	"math"
+	"ktop/ktdata"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func PollCPU(lastIdle, sum *int) (float32, error) {
+func PollCPU(stt *ktdata.State) error {
 	bytes, err := cpuBytes()
 	if err != nil {
-		return 0.0, err
+		return err
 	}
 
 	nums, err := readBytes(bytes)
 	if err != nil {
-		return 0.0, err
+		return err
 	}
 
 	curSum := 0
@@ -24,18 +24,22 @@ func PollCPU(lastIdle, sum *int) (float32, error) {
 		curSum += n
 	}
 
-	delta := curSum - *sum
-	idle := nums[3] - *lastIdle
+	delta := curSum - stt.CpuSum
+	idle := nums[3] - stt.LCI
 
-	*lastIdle = nums[3]
-	*sum = curSum
+	stt.LCI = nums[3]
+	stt.CpuSum = curSum
 
 	pcUsed := delta - idle
 
 	percentage := 100 * (float32(pcUsed) / float32(delta))
+	stt.CpuStamps = append(stt.CpuStamps, percentage)
 
-	// percentage = trunc(percentage, *prec)
-	return percentage, nil
+	if len(stt.CpuStamps) > stt.MaxStamps {
+		stt.CpuStamps = stt.CpuStamps[1:]
+	}
+
+	return nil
 }
 
 func readBytes(cpuBytes []byte) ([]int, error) {
@@ -96,8 +100,4 @@ statloop: // probably a simpler way to do this
 	}
 
 	return bytes, nil
-}
-
-func trunc(num, closestUnit float64) float64 {
-	return math.Round(num/closestUnit) * closestUnit
 }

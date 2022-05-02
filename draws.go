@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"ktop/ktdata"
 	"ktop/styles"
 	"math"
 
@@ -22,10 +23,7 @@ var empt = []rune{}
 const multiDigit float32 = 10.0
 
 // Standard draw of whichever screen the focus happens to be on.
-func stdDraw(scr tcell.Screen,
-	cpuPc, mem float32,
-	sty, inactiveSty tcell.Style,
-	stamps []float32) {
+func stdDraw(scr tcell.Screen, stt *ktdata.State) {
 
 	width, h := scr.Size()
 	// width = (width / 2) + 10
@@ -35,7 +33,7 @@ func stdDraw(scr tcell.Screen,
 	// start := width + 10
 
 	for i := width; i > 0; i-- {
-		scr.SetContent(i, h-1, '─', empt, inactiveSty)
+		scr.SetContent(i, h-1, '─', empt, stt.ColorTheme.InactiveStyle)
 	}
 
 	// TODOOO clean up this blunt impl of left-shifting graph grid area
@@ -44,21 +42,24 @@ func stdDraw(scr tcell.Screen,
 	for x := 2; x < width; x++ {
 		for y := h - 2; y > 1; y-- {
 			prv, _, _, _ := scr.GetContent(x+1, y)
-			scr.SetContent(x, y, prv, empt, sty)
+			scr.SetContent(x, y, prv, empt, stt.ColorTheme.MainStyle)
 		}
 	}
 
+	cpuPc := stt.CpuStamps[len(stt.CpuStamps)-1]
+	mem := stt.RamStamps[len(stt.RamStamps)-1]
+
 	subh := h - 2
-	dotmaxh := (h - 2) * 4 // dots possible within the height monospaces available
-	dots := int(math.Round(float64(dotmaxh) * (float64(cpuPc) / 100.0)))
+	dotmaxh := (h - 2) * 4                                               // dots possible within the height monospaces available
+	dots := int(math.Round(float64(dotmaxh) * (float64(cpuPc) / 100.0))) // TODO make this int conversion a little tighter
 	for subh > 1 {
 		if dots == 0 {
-			scr.SetContent(width, subh, space, empt, sty)
+			scr.SetContent(width, subh, space, empt, stt.ColorTheme.MainStyle)
 		} else if dots >= 4 {
-			scr.SetContent(width, subh, dotrunes[4], empt, sty)
+			scr.SetContent(width, subh, dotrunes[4], empt, stt.ColorTheme.MainStyle)
 			dots -= 4
 		} else {
-			scr.SetContent(width, subh, dotrunes[dots], empt, sty)
+			scr.SetContent(width, subh, dotrunes[dots], empt, stt.ColorTheme.MainStyle)
 			dots -= dots
 		}
 
@@ -77,29 +78,29 @@ func stdDraw(scr tcell.Screen,
 		in := false
 
 		if idx == 0 {
-			scr.SetContent(w-2, h, arrow, empt, sty)
+			scr.SetContent(w-2, h, arrow, empt, stt.ColorTheme.MainStyle)
 			in = true
 		}
 
 		for _, r := range txt {
 			if !in {
-				scr.SetContent(w, h+idx, r, empt, inactiveSty)
+				scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.InactiveStyle)
 			} else {
-				scr.SetContent(w, h+idx, r, empt, sty)
+				scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.MainStyle)
 			}
 			w++
 		}
 
 		if len(s) < 5 {
-			scr.SetContent(w, h+idx, space, empt, sty)
+			scr.SetContent(w, h+idx, space, empt, stt.ColorTheme.MainStyle)
 			w++
 		}
 
 		for i := 0; i < len(s); i++ {
 			if !in {
-				scr.SetContent(w, h+idx, rune(s[i]), empt, inactiveSty)
+				scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.InactiveStyle)
 			} else {
-				scr.SetContent(w, h+idx, rune(s[i]), empt, sty)
+				scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.MainStyle)
 			}
 
 			w++
