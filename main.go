@@ -76,14 +76,20 @@ renderloop:
 			panic(err)
 		}
 
-		// if stt.NeedsRedraw { // TODO fix drawing twice, redraw + stdDraw is bad
-		// 	redraw(screen, stt.)
-		// 	stt.NeedsRedraw = false
-		// }
+		if stt.NeedsRedraw {
+			redraw(screen, &stt)
+			stt.NeedsRedraw = false
+		}
 
 		if isDrawable(screen.Size()) {
-			stdDraw(screen, &stt)
+			// stdDraw(screen, &stt)
+			ioDraw(screen, &stt, quadTopRight)
+			ioDraw(screen, &stt, quadBottomRight)
+			ioDraw(screen, &stt, quadTopLeft)
+			ioDraw(screen, &stt, quadBottomLeft)
 		}
+
+		screen.Show() // only calling this once ✓
 		//  else {
 		// 	invalidSzDraw(screen, sty)
 		// }
