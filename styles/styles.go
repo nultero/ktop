@@ -40,3 +40,8 @@ func InvalidRed() tcell.Style {
 	return AllBlack().
 		Foreground(tcell.ColorRed)
 }
+
+func PinkFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorHotPink)
+}
