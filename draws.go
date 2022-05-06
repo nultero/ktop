@@ -2,12 +2,20 @@ package main
 
 import (
 	"fmt"
-	"ktop/ktdata"
+	"ktop/state"
 	"ktop/styles"
 	"math"
 
 	"github.com/gdamore/tcell/v2"
 )
+
+/*
+
+	TODOO: viewstate as a function of coordinates;
+	write tests that confirm that the renders do what
+	they are supposed to do
+
+*/
 
 const (
 	space  = ' '
@@ -21,7 +29,7 @@ var iotexts = []string{cpuTxt, memTxt}
 var empt = []rune{}
 
 // Standard draw of whichever screen the focus happens to be on.
-func stdDraw(scr tcell.Screen, stt *ktdata.State) {
+func stdDraw(scr tcell.Screen, stt *state.State) {
 
 	width, h := scr.Size()
 	// width = (width / 2) + 10
@@ -108,44 +116,78 @@ func stdDraw(scr tcell.Screen, stt *ktdata.State) {
 	scr.Show()
 }
 
-func ioDraw(scr tcell.Screen, stt *ktdata.State, q quadrant) {
+func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	w, h := scr.Size()
-	tl, br := getQuadrantXY(w, h, q)
-	ox := br.x - 2 // offset x
+	tl, br := state.GetQuadrantXY(w, h, q)
+	ox := br.X - 2 // offset x
+
+	// TODOOOO active/inactive styles checks/assigns here
 
 	memstr := fmt.Sprintf("%v%v", memTxt, stt.LastMemPCString())
 	for idx, r := range memstr {
-		scr.SetContent(ox+idx-len(memstr), br.y, r, empt, stt.ColorTheme.InactiveStyle)
+		scr.SetContent(ox+idx-len(memstr), br.Y, r, empt, stt.ColorTheme.InactiveStyle)
 	}
 
-	cpustr := fmt.Sprintf("%v%v", cpuTxt, stt.LastCpuPCString())
+	// TODO tmp draw
+	cpustr := fmt.Sprintf("%c%v%v", arrow, cpuTxt, stt.LastCpuPCString())
+	// cpustr := fmt.Sprintf("%c%v%v", arrow, "emotional wellbeing", stt.LastCpuPCString())
 	for idx, r := range cpustr {
-		scr.SetContent(ox+idx-len(cpustr), br.y-1, r, empt, stt.ColorTheme.MainStyle)
+		if idx == 0 {
+			scr.SetContent(ox+idx-len(cpustr), br.Y-1, r, empt, stt.ColorTheme.HighlightStyle)
+		} else {
+			scr.SetContent(ox+idx-len(cpustr), br.Y-1, r, empt, stt.ColorTheme.MainStyle)
+		}
 	}
 
-	// for idx, str := range iotexts {
-	// 	for _, r := range str {
-	// 		scr.SetContent(i, br.y, '─', empt, stt.ColorTheme.InactiveStyle)
-	// 	}
-
-	// }
-
-	for i := ox; i > tl.x; i-- {
-		scr.SetContent(i, br.y-2, '─', empt, stt.ColorTheme.InactiveStyle)
+	// drawing the flash line; this is always drawn in the InactiveStyle
+	for i := ox; i > tl.X; i-- {
+		scr.SetContent(i, br.Y-2, '─', empt, stt.ColorTheme.InactiveStyle)
 	}
 
-	// // TODOOO clean up this blunt impl of left-shifting graph grid area
-	// // for x := start - 1; x > 2; x-- {
-	// // for x := 2; x < start-1; x++ {
-	// for x := 2; x < width; x++ {
-	// 	for y := h - 2; y > 1; y-- {
-	// 		prv, _, _, _ := scr.GetContent(x+1, y)
-	// 		scr.SetContent(x, y, prv, empt, stt.ColorTheme.MainStyle)
-	// 	}
-	// }
+	/*
+		TODOOO -- need focused conditional to draw CPU vs. Mem
+		Graph draws:
+	*/
 
-	// cpuPc := stt.CpuStamps[len(stt.CpuStamps)-1]
-	// mem := stt.RamStamps[len(stt.RamStamps)-1]
+	xdiff := (ox - 1) - (tl.X + 1)
+	subh := br.Y - tl.Y - 2
+	charh := subh * 4 // chars' possible heights within the quadrant
+
+	if len(stt.CpuStamps) == 0 {
+		return
+	}
+
+	for i := len(stt.CpuStamps) - 1; i > 0; i-- {
+
+		if xdiff == 0 {
+			break
+		}
+
+		x := ox - (len(stt.CpuStamps) - i)
+		y := br.Y - 3
+
+		dots := int(math.Round(
+			float64(charh) * stt.CpuStamps[i] / 100.0,
+		))
+
+		for y > tl.Y+1 {
+			if dots == 0 {
+				scr.SetContent(x, y, space, empt, stt.ColorTheme.MainStyle)
+
+			} else if dots >= 4 {
+				scr.SetContent(x, y, dotrunes[4], empt, stt.ColorTheme.MainStyle)
+				dots -= 4
+
+			} else {
+				scr.SetContent(x, y, dotrunes[dots], empt, stt.ColorTheme.MainStyle)
+				dots = 0
+			}
+
+			y--
+		}
+
+		xdiff--
+	}
 
 	// subh := h - 2
 	// dotmaxh := (h - 2) * 4                                               // dots possible within the height monospaces available
@@ -208,7 +250,7 @@ func ioDraw(scr tcell.Screen, stt *ktdata.State, q quadrant) {
 
 // Flushes the main state's style so that on resize, things
 // don't bork entirely.
-func redraw(scr tcell.Screen, stt *ktdata.State) {
+func redraw(scr tcell.Screen, stt *state.State) {
 	w, h := scr.Size()
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
@@ -258,8 +300,4 @@ func invalidSzDraw(scr tcell.Screen, sty tcell.Style) {
 	}
 
 	scr.Show()
-}
-
-func isOdd(n int) bool {
-	return n%2 == 0
 }

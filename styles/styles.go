@@ -29,6 +29,11 @@ func GreenFg() tcell.Style {
 		Foreground(tcell.ColorGreen)
 }
 
+func MagentaFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorDarkMagenta)
+}
+
 func Matrix() tcell.Style {
 	c := tcell.NewRGBColor(0, 210, 17)
 	return tcell.StyleDefault.
@@ -44,4 +49,25 @@ func InvalidRed() tcell.Style {
 func PinkFg() tcell.Style {
 	return AllBlack().
 		Foreground(tcell.ColorHotPink)
+}
+
+func PinkVibrantFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorDeepPink)
+}
+
+func PinkDarkFg() tcell.Style {
+	c := tcell.NewRGBColor(120, 0, 67)
+	return AllBlack().
+		Foreground(c)
+}
+
+func LightYellowFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorLightYellow)
+}
+
+func YellowFg() tcell.Style {
+	return AllBlack().
+		Foreground(tcell.ColorYellow)
 }

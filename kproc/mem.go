@@ -2,14 +2,14 @@ package kproc
 
 import (
 	"fmt"
-	"ktop/ktdata"
+	"ktop/state"
 	"os"
 	"strconv"
 )
 
 const spc = ' '
 
-func PollMem(stt *ktdata.State) error {
+func PollMem(stt *state.State) error {
 	bytes, err := memBytes()
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func PollMem(stt *ktdata.State) error {
 	return nil
 }
 
-func getMem(bytes []byte) (float32, error) {
+func getMem(bytes []byte) (float64, error) {
 	kilobytes := []int{}
 	membytes := []byte{}
 
@@ -63,7 +63,7 @@ func getMem(bytes []byte) (float32, error) {
 		See test case for example
 	*/
 
-	fl := 100.0 * (1.0 - (float32(kilobytes[1]) / float32(kilobytes[0])))
+	fl := 100.0 * (1.0 - (float64(kilobytes[1]) / float64(kilobytes[0])))
 	return fl, nil
 }
 

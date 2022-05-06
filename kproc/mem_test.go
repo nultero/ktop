@@ -4,7 +4,7 @@ import "testing"
 
 func Test_PollMem(t *testing.T) {
 
-	var target float32 = 34.419758
+	var target float64 = 34.419758
 
 	testBytes := []byte(
 		"MemTotal:       16201568 kB\n" +

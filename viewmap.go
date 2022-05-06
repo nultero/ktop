@@ -1,12 +1,12 @@
 package main
 
-import "ktop/ktdata"
+import "ktop/state"
 
-type viewmap map[string]ktdata.View
+type viewmap map[string]state.View
 
-func (v viewmap) isFocused(s string, stt *ktdata.State) bool {
+func (v viewmap) isFocused(s string, stt *state.State) bool {
 	if view, ok := v[s]; ok {
-		return view == stt.Focused
+		return view == stt.FocusedComp
 	}
 
 	return false

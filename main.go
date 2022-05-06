@@ -2,7 +2,7 @@ package main
 
 import (
 	"ktop/kproc"
-	"ktop/ktdata"
+	"ktop/state"
 	"os"
 	"time"
 
@@ -21,7 +21,9 @@ func main() {
 
 	parseArgs(os.Args[1:])
 
-	stt := ktdata.DefaultState()
+	stt := state.DefaultState()
+
+	// stt.ColorTheme = styles.CyberPunkTheme()
 
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -83,10 +85,10 @@ renderloop:
 
 		if isDrawable(screen.Size()) {
 			// stdDraw(screen, &stt)
-			ioDraw(screen, &stt, quadTopRight)
-			ioDraw(screen, &stt, quadBottomRight)
-			ioDraw(screen, &stt, quadTopLeft)
-			ioDraw(screen, &stt, quadBottomLeft)
+			ioDraw(screen, &stt, state.QuadTopRight)
+			ioDraw(screen, &stt, state.QuadBottomRight)
+			ioDraw(screen, &stt, state.QuadTopLeft)
+			ioDraw(screen, &stt, state.QuadBottomLeft)
 		}
 
 		screen.Show() // only calling this once ✓
