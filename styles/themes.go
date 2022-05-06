@@ -21,3 +21,12 @@ func CrystalTheme() Theme {
 		InactiveStyle:  CyanFg().Foreground(tcell.ColorGray),
 	}
 }
+
+func CyberPunkTheme() Theme {
+	return Theme{
+		MainStyle:      PinkVibrantFg().Background(tcell.ColorBlack.TrueColor()),
+		AccentStyle:    CyanFg().Background(tcell.ColorBlack.TrueColor()),
+		HighlightStyle: YellowFg().Background(tcell.ColorBlack.TrueColor()),
+		InactiveStyle:  PinkDarkFg().Background(tcell.ColorBlack.TrueColor()),
+	}
+}

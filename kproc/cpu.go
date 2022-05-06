@@ -2,13 +2,13 @@ package kproc
 
 import (
 	"fmt"
-	"ktop/ktdata"
+	"ktop/state"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func PollCPU(stt *ktdata.State) error {
+func PollCPU(stt *state.State) error {
 	bytes, err := cpuBytes()
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func PollCPU(stt *ktdata.State) error {
 
 	pcUsed := delta - idle
 
-	percentage := 100 * (float32(pcUsed) / float32(delta))
+	percentage := 100 * (float64(pcUsed) / float64(delta))
 	stt.CpuStamps = append(stt.CpuStamps, percentage)
 
 	if len(stt.CpuStamps) > stt.MaxStamps {
