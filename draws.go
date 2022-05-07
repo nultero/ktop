@@ -28,114 +28,49 @@ var iotexts = []string{cpuTxt, memTxt}
 
 var empt = []rune{}
 
-// Standard draw of whichever screen the focus happens to be on.
-func stdDraw(scr tcell.Screen, stt *state.State) {
-
-	width, h := scr.Size()
-	// width = (width / 2) + 10
-	h /= 2
-	width -= 3
-
-	// start := width + 10
-
-	for i := width; i > 0; i-- {
-		scr.SetContent(i, h-1, '─', empt, stt.ColorTheme.InactiveStyle)
-	}
-
-	// TODOOO clean up this blunt impl of left-shifting graph grid area
-	// for x := start - 1; x > 2; x-- {
-	// for x := 2; x < start-1; x++ {
-	for x := 2; x < width; x++ {
-		for y := h - 2; y > 1; y-- {
-			prv, _, _, _ := scr.GetContent(x+1, y)
-			scr.SetContent(x, y, prv, empt, stt.ColorTheme.MainStyle)
-		}
-	}
-
-	cpuPc := stt.CpuStamps[len(stt.CpuStamps)-1]
-	mem := stt.RamStamps[len(stt.RamStamps)-1]
-
-	subh := h - 2
-	dotmaxh := (h - 2) * 4                                               // dots possible within the height monospaces available
-	dots := int(math.Round(float64(dotmaxh) * (float64(cpuPc) / 100.0))) // TODO make this int conversion a little tighter
-	for subh > 1 {
-		if dots == 0 {
-			scr.SetContent(width, subh, space, empt, stt.ColorTheme.MainStyle)
-		} else if dots >= 4 {
-			scr.SetContent(width, subh, dotrunes[4], empt, stt.ColorTheme.MainStyle)
-			dots -= 4
-		} else {
-			scr.SetContent(width, subh, dotrunes[dots], empt, stt.ColorTheme.MainStyle)
-			dots -= dots
-		}
-
-		subh--
-	}
-
-	cpuStr := fmt.Sprintf("%.2f", cpuPc)
-	memStr := fmt.Sprintf("%.2f", mem)
-
-	strs := []string{cpuStr, memStr}
-
-	for idx, s := range strs {
-		w := width - 10
-		txt := iotexts[idx]
-
-		in := false
-
-		if idx == 0 {
-			scr.SetContent(w-2, h, arrow, empt, stt.ColorTheme.MainStyle)
-			in = true
-		}
-
-		for _, r := range txt {
-			if !in {
-				scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.InactiveStyle)
-			} else {
-				scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.MainStyle)
-			}
-			w++
-		}
-
-		if len(s) < 5 {
-			scr.SetContent(w, h+idx, space, empt, stt.ColorTheme.MainStyle)
-			w++
-		}
-
-		for i := 0; i < len(s); i++ {
-			if !in {
-				scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.InactiveStyle)
-			} else {
-				scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.MainStyle)
-			}
-
-			w++
-		}
-	}
-
-	scr.Show()
-}
-
 func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	w, h := scr.Size()
 	tl, br := state.GetQuadrantXY(w, h, q)
 	ox := br.X - 2 // offset x
+	isQ := stt.IsQuad(q)
 
-	// TODOOOO active/inactive styles checks/assigns here
+	memstr := cprint(
+		memTxt, stt.LMemPCStr(), isQ, stt.IsFocused(state.MemGraph),
+	)
 
-	memstr := fmt.Sprintf("%v%v", memTxt, stt.LastMemPCString())
+	cpustr := cprint(
+		cpuTxt, stt.LCpuPCStr(), isQ, stt.IsFocused(state.CpuGraph),
+	)
+
+	// TODO if you assign these a map, you can put them
+	// into a much simpler, less repetitive loop
+
 	for idx, r := range memstr {
-		scr.SetContent(ox+idx-len(memstr), br.Y, r, empt, stt.ColorTheme.InactiveStyle)
+		x := ox + idx - len(memstr)
+		if stt.IsFocused(state.MemGraph) {
+			if isQ && idx == 0 {
+				scr.SetContent(x, br.Y, r, empt, stt.ColorTheme.HighlightStyle)
+
+			} else {
+				scr.SetContent(x, br.Y, r, empt, stt.ColorTheme.MainStyle)
+			}
+		} else {
+			scr.SetContent(x, br.Y, r, empt, stt.ColorTheme.InactiveStyle)
+		}
 	}
 
-	// TODO tmp draw
-	cpustr := fmt.Sprintf("%c%v%v", arrow, cpuTxt, stt.LastCpuPCString())
-	// cpustr := fmt.Sprintf("%c%v%v", arrow, "emotional wellbeing", stt.LastCpuPCString())
 	for idx, r := range cpustr {
-		if idx == 0 {
-			scr.SetContent(ox+idx-len(cpustr), br.Y-1, r, empt, stt.ColorTheme.HighlightStyle)
+		x := ox + idx - len(cpustr)
+		if stt.IsFocused(state.CpuGraph) {
+			if isQ {
+				// if isQ && idx == 0 {
+				scr.SetContent(x, br.Y-1, r, empt, stt.ColorTheme.HighlightStyle)
+			} else {
+				scr.SetContent(x, br.Y-1, r, empt, stt.ColorTheme.MainStyle)
+			}
 		} else {
-			scr.SetContent(ox+idx-len(cpustr), br.Y-1, r, empt, stt.ColorTheme.MainStyle)
+			scr.SetContent(x, br.Y-1, r, empt, stt.ColorTheme.InactiveStyle)
+
 		}
 	}
 
@@ -170,16 +105,21 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 			float64(charh) * stt.CpuStamps[i] / 100.0,
 		))
 
+		sty := stt.ColorTheme.MainStyle
+		if isQ {
+			sty = stt.ColorTheme.AccentStyle
+		}
+
 		for y > tl.Y+1 {
 			if dots == 0 {
-				scr.SetContent(x, y, space, empt, stt.ColorTheme.MainStyle)
+				scr.SetContent(x, y, space, empt, sty)
 
 			} else if dots >= 4 {
-				scr.SetContent(x, y, dotrunes[4], empt, stt.ColorTheme.MainStyle)
+				scr.SetContent(x, y, dotrunes[4], empt, sty)
 				dots -= 4
 
 			} else {
-				scr.SetContent(x, y, dotrunes[dots], empt, stt.ColorTheme.MainStyle)
+				scr.SetContent(x, y, dotrunes[dots], empt, sty)
 				dots = 0
 			}
 
@@ -188,64 +128,16 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 
 		xdiff--
 	}
+}
 
-	// subh := h - 2
-	// dotmaxh := (h - 2) * 4                                               // dots possible within the height monospaces available
-	// dots := int(math.Round(float64(dotmaxh) * (float64(cpuPc) / 100.0))) // TODO make this int conversion a little tighter
-	// for subh > 1 {
-	// 	if dots == 0 {
-	// 		scr.SetContent(width, subh, space, empt, stt.ColorTheme.MainStyle)
-	// 	} else if dots >= 4 {
-	// 		scr.SetContent(width, subh, dotrunes[4], empt, stt.ColorTheme.MainStyle)
-	// 		dots -= 4
-	// 	} else {
-	// 		scr.SetContent(width, subh, dotrunes[dots], empt, stt.ColorTheme.MainStyle)
-	// 		dots -= dots
-	// 	}
+// Conditional arrow cursor added to string if focused.
+// TODO: customizable cursor char?
+func cprint(txt, percent string, isQ, isFocused bool) string {
+	if isQ && isFocused {
+		return fmt.Sprintf("%c%v%v", arrow, txt, percent)
+	}
 
-	// 	subh--
-	// }
-
-	// cpuStr := fmt.Sprintf("%.2f", cpuPc)
-	// memStr := fmt.Sprintf("%.2f", mem)
-
-	// strs := []string{cpuStr, memStr}
-
-	// for idx, s := range strs {
-	// 	w := width - 10
-	// 	txt := texts[idx]
-
-	// 	in := false
-
-	// 	if idx == 0 {
-	// 		scr.SetContent(w-2, h, arrow, empt, stt.ColorTheme.MainStyle)
-	// 		in = true
-	// 	}
-
-	// 	for _, r := range txt {
-	// 		if !in {
-	// 			scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.InactiveStyle)
-	// 		} else {
-	// 			scr.SetContent(w, h+idx, r, empt, stt.ColorTheme.MainStyle)
-	// 		}
-	// 		w++
-	// 	}
-
-	// 	if len(s) < 5 {
-	// 		scr.SetContent(w, h+idx, space, empt, stt.ColorTheme.MainStyle)
-	// 		w++
-	// 	}
-
-	// 	for i := 0; i < len(s); i++ {
-	// 		if !in {
-	// 			scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.InactiveStyle)
-	// 		} else {
-	// 			scr.SetContent(w, h+idx, rune(s[i]), empt, stt.ColorTheme.MainStyle)
-	// 		}
-
-	// 		w++
-	// 	}
-	// }
+	return fmt.Sprintf("  %v%v", txt, percent)
 }
 
 // Flushes the main state's style so that on resize, things

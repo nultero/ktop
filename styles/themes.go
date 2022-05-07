@@ -16,8 +16,8 @@ type Theme struct {
 func CrystalTheme() Theme {
 	return Theme{
 		MainStyle:      CyanFg(),
-		AccentStyle:    CyanFg(),
-		HighlightStyle: PinkFg(),
+		AccentStyle:    CrystalFocus(),
+		HighlightStyle: CrystalFocus(),
 		InactiveStyle:  CyanFg().Foreground(tcell.ColorGray),
 	}
 }

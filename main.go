@@ -3,6 +3,7 @@ package main
 import (
 	"ktop/kproc"
 	"ktop/state"
+	"ktop/styles"
 	"os"
 	"time"
 
@@ -23,7 +24,7 @@ func main() {
 
 	stt := state.DefaultState()
 
-	// stt.ColorTheme = styles.CyberPunkTheme()
+	stt.ColorTheme = styles.CyberPunkTheme()
 
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -44,6 +45,9 @@ func main() {
 			switch ev := ev.(type) {
 			case *tcell.EventKey:
 				switch ev.Key() {
+				case tcell.KeyDown, tcell.KeyUp, tcell.KeyRight, tcell.KeyLeft:
+					stt.CheckQuad(ev.Key())
+
 				case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyCtrlC, tcell.KeyCtrlQ:
 					close(quit)
 					return
@@ -56,8 +60,6 @@ func main() {
 			}
 		}
 	}()
-
-	// sty := styles.Matrix()
 
 renderloop:
 	for {

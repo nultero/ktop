@@ -19,6 +19,12 @@ func BlueFg() tcell.Style {
 		Foreground(tcell.ColorBlue)
 }
 
+func CrystalFocus() tcell.Style {
+	c := tcell.NewRGBColor(69, 237, 226)
+	return AllBlack().
+		Foreground(c)
+}
+
 func CyanFg() tcell.Style {
 	return AllBlack().
 		Foreground(tcell.ColorLightCyan)

@@ -1,5 +1,7 @@
 package state
 
+import "github.com/gdamore/tcell/v2"
+
 type Coord struct {
 	X, Y int
 }
@@ -12,6 +14,42 @@ const (
 	QuadBottomLeft  Quadrant = 2
 	QuadBottomRight Quadrant = 3
 )
+
+func (stt *State) IsQuad(q Quadrant) bool {
+	return stt.quad == q
+}
+
+func (stt *State) CheckQuad(k tcell.Key) {
+	switch k {
+	case tcell.KeyDown:
+		if stt.quad == QuadTopRight {
+			stt.quad = QuadBottomRight
+		} else if stt.quad == QuadTopLeft {
+			stt.quad = QuadBottomLeft
+		}
+
+	case tcell.KeyUp:
+		if stt.quad == QuadBottomRight {
+			stt.quad = QuadTopRight
+		} else if stt.quad == QuadBottomLeft {
+			stt.quad = QuadTopLeft
+		}
+
+	case tcell.KeyLeft:
+		if stt.quad == QuadBottomRight {
+			stt.quad = QuadBottomLeft
+		} else if stt.quad == QuadTopRight {
+			stt.quad = QuadTopLeft
+		}
+
+	case tcell.KeyRight:
+		if stt.quad == QuadBottomLeft {
+			stt.quad = QuadBottomRight
+		} else if stt.quad == QuadTopLeft {
+			stt.quad = QuadTopRight
+		}
+	}
+}
 
 // Returns topleft and bottomright Coords of a given quadrant.
 // Upper/rightmost areas are arbitrarily greedier: an odd-number sized
@@ -48,11 +86,14 @@ func GetQuadrantXY(w, h int, q Quadrant) (Coord, Coord) {
 	case QuadBottomRight:
 		tl = Coord{w / 2, h / 2}
 		br = Coord{w, h}
+		if isOdd(w) {
+			br.X++
+		}
 	}
 
 	return tl, br
 }
 
 func isOdd(n int) bool {
-	return n%2 == 0
+	return n%2 != 0
 }

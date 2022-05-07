@@ -6,11 +6,9 @@ import (
 	"time"
 )
 
-type View uint8
-
 type State struct {
-	FocusedComp View // The active component within the focused quad
-	FocusedQuad Quadrant
+	Cursor View     // The active component within the focused quad
+	quad   Quadrant // The focused quadrant within the frame.
 
 	PollRate  time.Duration
 	LCI       int // last CPU idle %, used for PollCPU
@@ -26,14 +24,15 @@ type State struct {
 
 func DefaultState() State {
 	return State{
-		FocusedComp: 1, // corresponds to CPU in ../viewmap.go
-		FocusedQuad: QuadTopRight,
-		PollRate:    500 * time.Millisecond,
-		LCI:         0,
-		CpuSum:      0,
-		CpuStamps:   []float64{},
-		RamStamps:   []float64{},
-		MaxStamps:   120,
+		Cursor: 0, // corresponds to CPU in ../viewmap.go
+		quad:   QuadTopRight,
+
+		PollRate:  200 * time.Millisecond,
+		LCI:       0,
+		CpuSum:    0,
+		CpuStamps: []float64{},
+		RamStamps: []float64{},
+		MaxStamps: 120,
 
 		ColorTheme: styles.CrystalTheme(),
 
@@ -41,13 +40,19 @@ func DefaultState() State {
 	}
 }
 
+/*
+	Various output methods below
+*/
+
 const multiDigit float64 = 10.0
 
-func (s *State) LastCpuPC() float64 {
+// Last CPU percent.
+func (s *State) LCpuPC() float64 {
 	return s.CpuStamps[len(s.CpuStamps)-1]
 }
 
-func (s *State) LastCpuPCString() string {
+// Last CPU percent Sprintf'd to a string.
+func (s *State) LCpuPCStr() string {
 	c := s.CpuStamps[len(s.CpuStamps)-1]
 	if c < multiDigit {
 		return fmt.Sprintf(" %.2f", c)
@@ -56,11 +61,13 @@ func (s *State) LastCpuPCString() string {
 	return fmt.Sprintf("%.2f", c)
 }
 
-func (s *State) LastMemPC() float64 {
+// Last memory stamp percent.
+func (s *State) LMemPC() float64 {
 	return s.RamStamps[len(s.RamStamps)-1]
 }
 
-func (s *State) LastMemPCString() string {
+// Last memory stamp percent Sprintf'd to a string.
+func (s *State) LMemPCStr() string {
 	m := s.RamStamps[len(s.RamStamps)-1]
 	if m < multiDigit {
 		return fmt.Sprintf(" %.2f", m)
