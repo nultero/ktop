@@ -15,11 +15,14 @@ const (
 	QuadBottomRight Quadrant = 3
 )
 
-func (stt *State) IsQuad(q Quadrant) bool {
+// Returns whether state is focused on quad q.
+func (stt *State) OnQuad(q Quadrant) bool {
 	return stt.quad == q
 }
 
-func (stt *State) CheckQuad(k tcell.Key) {
+// Primary state method of changing views / quads.
+func (stt *State) MoveQuad(k tcell.Key) {
+
 	switch k {
 	case tcell.KeyDown:
 		if stt.quad == QuadTopRight {

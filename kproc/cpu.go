@@ -24,19 +24,19 @@ func PollCPU(stt *state.State) error {
 		curSum += n
 	}
 
-	delta := curSum - stt.CpuSum
-	idle := nums[3] - stt.LCI
+	delta := curSum - stt.Cpu.Sum
+	idle := nums[3] - stt.Cpu.LCI
 
-	stt.LCI = nums[3]
-	stt.CpuSum = curSum
+	stt.Cpu.LCI = nums[3]
+	stt.Cpu.Sum = curSum
 
 	pcUsed := delta - idle
 
 	percentage := 100 * (float64(pcUsed) / float64(delta))
-	stt.CpuStamps = append(stt.CpuStamps, percentage)
+	stt.Cpu.Stamps = append(stt.Cpu.Stamps, percentage)
 
-	if len(stt.CpuStamps) > stt.MaxStamps {
-		stt.CpuStamps = stt.CpuStamps[1:]
+	if len(stt.Cpu.Stamps) > stt.MaxStamps {
+		stt.Cpu.Stamps = stt.Cpu.Stamps[1:]
 	}
 
 	return nil

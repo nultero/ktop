@@ -28,18 +28,19 @@ var iotexts = []string{cpuTxt, memTxt}
 
 var empt = []rune{}
 
+// This view shows CPU | Mem usage in a pretty graph.
 func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	w, h := scr.Size()
 	tl, br := state.GetQuadrantXY(w, h, q)
 	ox := br.X - 2 // offset x
-	isQ := stt.IsQuad(q)
+	onQ := stt.OnQuad(q)
 
 	memstr := cprint(
-		memTxt, stt.LMemPCStr(), isQ, stt.IsFocused(state.MemGraph),
+		memTxt, stt.LMemPCStr(), onQ, stt.IsFocused(state.MemGraph),
 	)
 
 	cpustr := cprint(
-		cpuTxt, stt.LCpuPCStr(), isQ, stt.IsFocused(state.CpuGraph),
+		cpuTxt, stt.LCpuPCStr(), onQ, stt.IsFocused(state.CpuGraph),
 	)
 
 	// TODO if you assign these a map, you can put them
@@ -48,7 +49,7 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	for idx, r := range memstr {
 		x := ox + idx - len(memstr)
 		if stt.IsFocused(state.MemGraph) {
-			if isQ && idx == 0 {
+			if onQ && idx == 0 {
 				scr.SetContent(x, br.Y, r, empt, stt.ColorTheme.HighlightStyle)
 
 			} else {
@@ -62,8 +63,8 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	for idx, r := range cpustr {
 		x := ox + idx - len(cpustr)
 		if stt.IsFocused(state.CpuGraph) {
-			if isQ {
-				// if isQ && idx == 0 {
+			if onQ {
+				// if onQ && idx == 0 {
 				scr.SetContent(x, br.Y-1, r, empt, stt.ColorTheme.HighlightStyle)
 			} else {
 				scr.SetContent(x, br.Y-1, r, empt, stt.ColorTheme.MainStyle)
@@ -88,25 +89,25 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	subh := br.Y - tl.Y - 2
 	charh := subh * 4 // chars' possible heights within the quadrant
 
-	if len(stt.CpuStamps) == 0 {
+	if len(stt.Cpu.Stamps) == 0 {
 		return
 	}
 
-	for i := len(stt.CpuStamps) - 1; i > 0; i-- {
+	for i := len(stt.Cpu.Stamps) - 1; i > 0; i-- {
 
 		if xdiff == 0 {
 			break
 		}
 
-		x := ox - (len(stt.CpuStamps) - i)
+		x := ox - (len(stt.Cpu.Stamps) - i)
 		y := br.Y - 3
 
 		dots := int(math.Round(
-			float64(charh) * stt.CpuStamps[i] / 100.0,
+			float64(charh) * stt.Cpu.Stamps[i] / 100.0,
 		))
 
 		sty := stt.ColorTheme.MainStyle
-		if isQ {
+		if onQ {
 			sty = stt.ColorTheme.AccentStyle
 		}
 
@@ -132,8 +133,8 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 
 // Conditional arrow cursor added to string if focused.
 // TODO: customizable cursor char?
-func cprint(txt, percent string, isQ, isFocused bool) string {
-	if isQ && isFocused {
+func cprint(txt, percent string, onQ, isFocused bool) string {
+	if onQ && isFocused {
 		return fmt.Sprintf("%c%v%v", arrow, txt, percent)
 	}
 

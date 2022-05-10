@@ -20,10 +20,10 @@ func PollMem(stt *state.State) error {
 		return err
 	}
 
-	stt.RamStamps = append(stt.RamStamps, mem)
+	stt.Mem.Stamps = append(stt.Mem.Stamps, mem)
 
-	if len(stt.RamStamps) > stt.MaxStamps {
-		stt.RamStamps = stt.RamStamps[1:]
+	if len(stt.Mem.Stamps) > stt.MaxStamps {
+		stt.Mem.Stamps = stt.Mem.Stamps[1:]
 	}
 
 	return nil

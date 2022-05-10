@@ -46,7 +46,7 @@ func main() {
 			case *tcell.EventKey:
 				switch ev.Key() {
 				case tcell.KeyDown, tcell.KeyUp, tcell.KeyRight, tcell.KeyLeft:
-					stt.CheckQuad(ev.Key())
+					stt.MoveQuad(ev.Key())
 
 				case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyCtrlC, tcell.KeyCtrlQ:
 					close(quit)

@@ -8,6 +8,7 @@ import "github.com/gdamore/tcell/v2"
 
 type Theme struct {
 	MainStyle      tcell.Style
+	SecondaryStyle tcell.Style
 	AccentStyle    tcell.Style
 	HighlightStyle tcell.Style
 	InactiveStyle  tcell.Style
