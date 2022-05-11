@@ -1,7 +1,10 @@
 package main
 
 import (
+	"ktop/kproc"
+	"ktop/state"
 	"os"
+	"time"
 )
 
 const dvnull = "/dev/null"
@@ -18,6 +21,21 @@ func parseArgs(args []string) {
 	funcQuits := false
 	if len(args) >= 1 { // some crappy testing scaffold
 		funcQuits = true
+	} else {
+		return
+	}
+
+	if args[0] == "t" {
+		stt := state.DefaultState()
+		for i := 0; i < 3; i++ {
+			err := kproc.Top(&stt)
+			if err != nil {
+				panic(err)
+			}
+
+			time.Sleep(time.Second)
+		}
+		stt.Log.Dump()
 	}
 
 	b := []byte{}

@@ -24,7 +24,8 @@ func main() {
 
 	stt := state.DefaultState()
 
-	stt.ColorTheme = styles.CyberPunkTheme()
+	// stt.ColorTheme = styles.CyberPunkTheme()
+	stt.ColorTheme = styles.CrystalTheme()
 
 	screen, err := tcell.NewScreen()
 	if err != nil {

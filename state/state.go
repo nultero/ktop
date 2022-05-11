@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type log []string
+
+type PIDMap map[uint64]proc_t
+
 type State struct {
 	Cursor View     // The active component within the focused quad
 	quad   Quadrant // The focused quadrant within the frame.
@@ -15,10 +19,13 @@ type State struct {
 	Cpu       cpu_t
 	Mem       mem_t
 	MaxStamps int // how many cpu / mem stamps to keep
+	PidMap    PIDMap
 
 	ColorTheme styles.Theme
 
 	NeedsRedraw bool
+
+	Log log
 }
 
 func DefaultState() State {
@@ -28,15 +35,18 @@ func DefaultState() State {
 
 		PollRate: 200 * time.Millisecond,
 
-		Cpu: defaultCpu_t(),
-
+		Cpu:       defaultCpu_t(),
+		Mem:       defaultMem_t(),
 		MaxStamps: 120,
+		PidMap:    PIDMap{},
 
 		// this is just the default;
 		// intended to be overwritten by a config
 		ColorTheme: styles.CrystalTheme(),
 
 		NeedsRedraw: false,
+
+		Log: log{},
 	}
 }
 
@@ -74,4 +84,15 @@ func (s *State) LMemPCStr() string {
 	}
 
 	return fmt.Sprintf("%.2f", m)
+}
+
+// Calls fmt.Println on every line in the log.
+//
+// Useful for outputting captured, nonfatal errors
+// such as those that might come from reading
+// from deeper chunks of procfs.
+func (l log) Dump() {
+	for _, ln := range l {
+		fmt.Println(ln)
+	}
 }
