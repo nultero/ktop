@@ -1,6 +1,8 @@
 package kproc
 
-import "testing"
+import (
+	"testing"
+)
 
 // live example of a proc/pid/stat file taken from my zsh shell process
 // the lone '4 1' of the first line are the relevant bits

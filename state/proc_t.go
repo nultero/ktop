@@ -6,14 +6,15 @@ import (
 )
 
 type proc_t struct {
-	Name  string
+	name  string
 	utime [2]int64 // user mode jiffies
 	stime [2]int64 // kernel mode jiffies
 }
 
 // Adds a new process to the proctable.
-func (pm PIDMap) NewProc(pid uint64, utime, stime int64) {
+func (pm PIDMap) NewProc(name string, pid uint64, utime, stime int64) {
 	pm[pid] = proc_t{
+		name:  name,
 		utime: [2]int64{-1, utime},
 		stime: [2]int64{-1, stime},
 	}
@@ -26,6 +27,7 @@ func (pm PIDMap) UpdateProc(pid uint64, utime, stime int64) error {
 
 		proc.stime[0] = proc.stime[1]
 		proc.stime[1] = stime
+
 	} else {
 		return errors.New(
 			fmt.Sprintf(
@@ -36,4 +38,16 @@ func (pm PIDMap) UpdateProc(pid uint64, utime, stime int64) error {
 	}
 
 	return nil
+}
+
+func (pt proc_t) Utime() int {
+	return int(pt.utime[1] - pt.utime[0])
+}
+
+func (pt proc_t) Stime() int {
+	return int(pt.stime[1] - pt.stime[0])
+}
+
+func (pt proc_t) Name() string {
+	return pt.name
 }

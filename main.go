@@ -50,6 +50,7 @@ func main() {
 					stt.MoveQuad(ev.Key())
 
 				case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyCtrlC, tcell.KeyCtrlQ:
+					quit <- struct{}{}
 					close(quit)
 					return
 				case tcell.KeyCtrlL:
@@ -92,15 +93,18 @@ renderloop:
 			ioDraw(screen, &stt, state.QuadBottomRight)
 			ioDraw(screen, &stt, state.QuadTopLeft)
 			ioDraw(screen, &stt, state.QuadBottomLeft)
+		} else {
+			invalidSzDraw(screen, stt.ColorTheme.MainStyle)
 		}
 
 		screen.Show() // only calling this once ✓
+
 		//  else {
-		// 	invalidSzDraw(screen, sty)
 		// }
 	}
 
 	screen.Fini()
+	stt.Log.Dump()
 }
 
 func isDrawable(x, y int) bool {

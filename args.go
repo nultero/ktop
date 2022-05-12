@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"ktop/kproc"
 	"ktop/state"
 	"os"
@@ -27,15 +28,18 @@ func parseArgs(args []string) {
 
 	if args[0] == "t" {
 		stt := state.DefaultState()
-		for i := 0; i < 3; i++ {
-			err := kproc.Top(&stt)
-			if err != nil {
-				panic(err)
-			}
+		for {
+			kproc.PollCPU(&stt)
+			kproc.Top(&stt)
+			// pcs, pnames, err := kproc.Top(&stt)
+			// if err != nil {
+			// 	panic(err)
+			// }
+
+			fmt.Println(stt.PidMap)
 
 			time.Sleep(time.Second)
 		}
-		stt.Log.Dump()
 	}
 
 	b := []byte{}

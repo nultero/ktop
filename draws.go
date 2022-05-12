@@ -36,11 +36,11 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	onQ := stt.OnQuad(q)
 
 	memstr := cprint(
-		memTxt, stt.LMemPCStr(), onQ, stt.IsFocused(state.MemGraph),
+		memTxt, stt.Mem.LastToStr(), onQ, stt.IsFocused(state.MemGraph),
 	)
 
 	cpustr := cprint(
-		cpuTxt, stt.LCpuPCStr(), onQ, stt.IsFocused(state.CpuGraph),
+		cpuTxt, stt.Cpu.LastToStr(), onQ, stt.IsFocused(state.CpuGraph),
 	)
 
 	// TODO if you assign these a map, you can put them

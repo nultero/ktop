@@ -28,6 +28,7 @@ func PollCPU(stt *state.State) error {
 	idle := nums[3] - stt.Cpu.LCI
 
 	stt.Cpu.LCI = nums[3]
+	stt.Cpu.SumPrev = stt.Cpu.Sum
 	stt.Cpu.Sum = curSum
 
 	pcUsed := delta - idle

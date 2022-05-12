@@ -50,42 +50,6 @@ func DefaultState() State {
 	}
 }
 
-/*
-	Various output methods below
-*/
-
-const multiDigit float64 = 10.0
-
-// Last CPU percent.
-func (s *State) LCpuPC() float64 {
-	return s.Cpu.Stamps[len(s.Cpu.Stamps)-1]
-}
-
-// Last CPU percent Sprintf'd to a string.
-func (s *State) LCpuPCStr() string {
-	c := s.Cpu.Stamps[len(s.Cpu.Stamps)-1]
-	if c < multiDigit {
-		return fmt.Sprintf(" %.2f", c)
-	}
-
-	return fmt.Sprintf("%.2f", c)
-}
-
-// Last memory stamp percent.
-func (s *State) LMemPC() float64 {
-	return s.Mem.Stamps[len(s.Mem.Stamps)-1]
-}
-
-// Last memory stamp percent Sprintf'd to a string.
-func (s *State) LMemPCStr() string {
-	m := s.Mem.Stamps[len(s.Mem.Stamps)-1]
-	if m < multiDigit {
-		return fmt.Sprintf(" %.2f", m)
-	}
-
-	return fmt.Sprintf("%.2f", m)
-}
-
 // Calls fmt.Println on every line in the log.
 //
 // Useful for outputting captured, nonfatal errors
