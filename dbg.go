@@ -7,6 +7,6 @@ import (
 )
 
 // TODOO get the debug log and/or put this junk into state
-func debugDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
+func debugDraw(scr tcell.Screen, stt *state.State) {
 
 }

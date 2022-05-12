@@ -29,14 +29,13 @@ func parseArgs(args []string) {
 	if args[0] == "t" {
 		stt := state.DefaultState()
 		for {
-			kproc.PollCPU(&stt)
 			kproc.Top(&stt)
 			// pcs, pnames, err := kproc.Top(&stt)
 			// if err != nil {
 			// 	panic(err)
 			// }
 
-			fmt.Println(stt.PidMap)
+			fmt.Println(stt.Top)
 
 			time.Sleep(time.Second)
 		}

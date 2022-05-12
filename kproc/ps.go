@@ -5,55 +5,8 @@ import (
 	"fmt"
 	"ktop/state"
 	"os"
-	"sort"
 	"strconv"
 )
-
-func Top(stt *state.State) ([]float64, []string, error) {
-
-	pmap := map[float64][]string{}
-	procNames := []string{}
-	pcs := []float64{}
-
-	err := readProcfs(stt)
-	if err != nil {
-		return pcs, procNames, err
-	}
-
-	cpu := stt.Cpu.Sum - stt.Cpu.SumPrev
-	// cpu := stt.Cpu.Sum
-	if cpu == 0 {
-		return pcs, procNames, nil
-	}
-
-	for _, val := range stt.PidMap {
-		userPc := 100 * val.Utime() / cpu
-		sysPc := 100 * val.Stime() / cpu
-
-		ttl := float64(userPc+sysPc) / 2
-
-		if procs, ok := pmap[ttl]; ok {
-			procs = append(procs, val.Name())
-
-		} else {
-			pmap[ttl] = []string{val.Name()}
-		}
-	}
-
-	for f := range pmap {
-		pcs = append(pcs, f)
-	}
-	sort.Float64s(pcs)
-
-	for _, f := range pcs {
-		nStrs := pmap[f]
-		for _, s := range nStrs {
-			procNames = append(procNames, s)
-		}
-	}
-
-	return pcs, procNames, nil
-}
 
 func readProcfs(stt *state.State) error {
 	dir, err := os.ReadDir("/proc")

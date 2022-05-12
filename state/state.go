@@ -12,7 +12,7 @@ type PIDMap map[uint64]proc_t
 
 type State struct {
 	Cursor View     // The active component within the focused quad
-	quad   Quadrant // The focused quadrant within the frame.
+	Quad   Quadrant // The focused quadrant within the frame.
 
 	PollRate time.Duration
 
@@ -20,6 +20,7 @@ type State struct {
 	Mem       mem_t
 	MaxStamps int // how many cpu / mem stamps to keep
 	PidMap    PIDMap
+	Top       ProcTab // the table of processes
 
 	ColorTheme styles.Theme
 
@@ -31,7 +32,7 @@ type State struct {
 func DefaultState() State {
 	return State{
 		Cursor: 0, // corresponds to CPU in ../viewmap.go
-		quad:   QuadTopRight,
+		Quad:   QuadTopRight,
 
 		PollRate: 200 * time.Millisecond,
 
@@ -39,6 +40,7 @@ func DefaultState() State {
 		Mem:       defaultMem_t(),
 		MaxStamps: 120,
 		PidMap:    PIDMap{},
+		Top:       ProcTab{},
 
 		// this is just the default;
 		// intended to be overwritten by a config

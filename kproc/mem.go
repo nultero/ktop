@@ -9,7 +9,7 @@ import (
 
 const spc = ' '
 
-func PollMem(stt *state.State) error {
+func pollMem(stt *state.State) error {
 	bytes, err := memBytes()
 	if err != nil {
 		return err

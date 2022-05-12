@@ -40,6 +40,14 @@ func (pm PIDMap) UpdateProc(pid uint64, utime, stime int64) error {
 	return nil
 }
 
+func (pt proc_t) Prev() int64 {
+	return pt.utime[0] + pt.stime[0]
+}
+
+func (pt proc_t) Cur() int64 {
+	return pt.utime[1] + pt.stime[1]
+}
+
 func (pt proc_t) Utime() int {
 	return int(pt.utime[1] - pt.utime[0])
 }

@@ -1,6 +1,8 @@
 package state
 
-import "github.com/gdamore/tcell/v2"
+import (
+	"github.com/gdamore/tcell/v2"
+)
 
 type Coord struct {
 	X, Y int
@@ -17,48 +19,47 @@ const (
 
 // Returns whether state is focused on quad q.
 func (stt *State) OnQuad(q Quadrant) bool {
-	return stt.quad == q
+	return stt.Quad == q
 }
 
 // Primary state method of changing views / quads.
 func (stt *State) MoveQuad(k tcell.Key) {
-
 	switch k {
 	case tcell.KeyDown:
-		if stt.quad == QuadTopRight {
-			stt.quad = QuadBottomRight
-		} else if stt.quad == QuadTopLeft {
-			stt.quad = QuadBottomLeft
+		if stt.Quad == QuadTopRight {
+			stt.Quad = QuadBottomRight
+		} else if stt.Quad == QuadTopLeft {
+			stt.Quad = QuadBottomLeft
 		}
 
 	case tcell.KeyUp:
-		if stt.quad == QuadBottomRight {
-			stt.quad = QuadTopRight
-		} else if stt.quad == QuadBottomLeft {
-			stt.quad = QuadTopLeft
+		if stt.Quad == QuadBottomRight {
+			stt.Quad = QuadTopRight
+		} else if stt.Quad == QuadBottomLeft {
+			stt.Quad = QuadTopLeft
 		}
 
 	case tcell.KeyLeft:
-		if stt.quad == QuadBottomRight {
-			stt.quad = QuadBottomLeft
-		} else if stt.quad == QuadTopRight {
-			stt.quad = QuadTopLeft
+		if stt.Quad == QuadBottomRight {
+			stt.Quad = QuadBottomLeft
+		} else if stt.Quad == QuadTopRight {
+			stt.Quad = QuadTopLeft
 		}
 
 	case tcell.KeyRight:
-		if stt.quad == QuadBottomLeft {
-			stt.quad = QuadBottomRight
-		} else if stt.quad == QuadTopLeft {
-			stt.quad = QuadTopRight
+		if stt.Quad == QuadBottomLeft {
+			stt.Quad = QuadBottomRight
+		} else if stt.Quad == QuadTopLeft {
+			stt.Quad = QuadTopRight
 		}
 	}
 }
 
-// Returns topleft and bottomright Coords of a given quadrant.
+// Returns topleft and bottomright Coords of a given Quadrant.
 // Upper/rightmost areas are arbitrarily greedier: an odd-number sized
 // terminal w/h will give the extra point of size to the upper or
-// right quadrants.
-func GetQuadrantXY(w, h int, q Quadrant) (Coord, Coord) {
+// right Quadrants.
+func (q Quadrant) GetBounds(w, h int) (Coord, Coord) {
 
 	h -= 2 // bottom edge buffer
 	tl, br := Coord{}, Coord{}

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func PollCPU(stt *state.State) error {
+func pollCPU(stt *state.State) error {
 	bytes, err := cpuBytes()
 	if err != nil {
 		return err

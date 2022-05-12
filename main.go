@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ktop/draws"
 	"ktop/kproc"
 	"ktop/state"
 	"ktop/styles"
@@ -14,6 +15,8 @@ import (
 	TODO config somewhere
 */
 
+const minX, minY = 30, 16
+
 func init() {
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 }
@@ -23,6 +26,10 @@ func main() {
 	parseArgs(os.Args[1:])
 
 	stt := state.DefaultState()
+	err := kproc.Top(&stt)
+	if err != nil {
+		panic(err)
+	}
 
 	// stt.ColorTheme = styles.CyberPunkTheme()
 	stt.ColorTheme = styles.CrystalTheme()
@@ -72,35 +79,27 @@ renderloop:
 		case <-time.After(stt.PollRate):
 		}
 
-		err := kproc.PollCPU(&stt)
-		if err != nil {
-			panic(err)
-		}
-
-		err = kproc.PollMem(&stt)
+		err := kproc.Top(&stt)
 		if err != nil {
 			panic(err)
 		}
 
 		if stt.NeedsRedraw {
-			redraw(screen, &stt)
+			draws.Refresh(screen, &stt)
 			stt.NeedsRedraw = false
 		}
 
 		if isDrawable(screen.Size()) {
 			// stdDraw(screen, &stt)
-			ioDraw(screen, &stt, state.QuadTopRight)
-			ioDraw(screen, &stt, state.QuadBottomRight)
-			ioDraw(screen, &stt, state.QuadTopLeft)
-			ioDraw(screen, &stt, state.QuadBottomLeft)
+			draws.Io(screen, &stt, state.QuadTopRight)
+			draws.Io(screen, &stt, state.QuadBottomRight)
+			draws.TopCpu(screen, &stt, state.QuadTopLeft)
+			draws.Io(screen, &stt, state.QuadBottomLeft)
 		} else {
-			invalidSzDraw(screen, stt.ColorTheme.MainStyle)
+			draws.Invalid(screen, stt.ColorTheme.MainStyle, minX, minY)
 		}
 
 		screen.Show() // only calling this once ✓
-
-		//  else {
-		// }
 	}
 
 	screen.Fini()
@@ -108,7 +107,7 @@ renderloop:
 }
 
 func isDrawable(x, y int) bool {
-	if x < 30 || y < 16 {
+	if x < minX || y < minY {
 		return false
 	}
 

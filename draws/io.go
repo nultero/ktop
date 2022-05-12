@@ -1,9 +1,8 @@
-package main
+package draws
 
 import (
 	"fmt"
 	"ktop/state"
-	"ktop/styles"
 	"math"
 
 	"github.com/gdamore/tcell/v2"
@@ -17,21 +16,10 @@ import (
 
 */
 
-const (
-	space  = ' '
-	arrow  = '➤'
-	cpuTxt = "CPU: "
-	memTxt = "RAM: "
-)
-
-var iotexts = []string{cpuTxt, memTxt}
-
-var empt = []rune{}
-
 // This view shows CPU | Mem usage in a pretty graph.
-func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
+func Io(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 	w, h := scr.Size()
-	tl, br := state.GetQuadrantXY(w, h, q)
+	tl, br := q.GetBounds(w, h)
 	ox := br.X - 2 // offset x
 	onQ := stt.OnQuad(q)
 
@@ -75,7 +63,7 @@ func ioDraw(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 		}
 	}
 
-	// drawing the flash line; this is always drawn in the InactiveStyle
+	// bottom of graph line
 	for i := ox; i > tl.X; i-- {
 		scr.SetContent(i, br.Y-2, '─', empt, stt.ColorTheme.InactiveStyle)
 	}
@@ -139,58 +127,4 @@ func cprint(txt, percent string, onQ, isFocused bool) string {
 	}
 
 	return fmt.Sprintf("  %v%v", txt, percent)
-}
-
-// Flushes the main state's style so that on resize, things
-// don't bork entirely.
-func redraw(scr tcell.Screen, stt *state.State) {
-	w, h := scr.Size()
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
-			scr.SetContent(i, j, space, empt, stt.ColorTheme.MainStyle)
-		}
-	}
-}
-
-/*
-
-	Invalid screen size stuff below
-
-*/
-
-var invals = []string{
-	" screen size invalid;",
-	" needs at least 30 spaces width", // TODO clean up the invalid size jank/mismatch possibilities
-	" and 18 height"}
-
-func invalidSzDraw(scr tcell.Screen, sty tcell.Style) {
-	w, h := scr.Size()
-	red := styles.InvalidRed()
-
-	if h < 3 { // can't even display the invalid stuff;
-		str := ""
-		for _, s := range invals {
-			str += s
-		}
-
-		for i, r := range str {
-			scr.SetContent(i, 0, r, empt, red)
-		}
-
-		return
-	}
-
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
-			scr.SetContent(i, j, space, empt, sty)
-		}
-	}
-
-	for i, s := range invals {
-		for idx, r := range s {
-			scr.SetContent(idx, i, r, empt, red)
-		}
-	}
-
-	scr.Show()
 }
