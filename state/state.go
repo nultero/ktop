@@ -21,6 +21,8 @@ type State struct {
 	MaxStamps int // how many cpu / mem stamps to keep
 	PidMap    PIDMap
 	Top       ProcTab // the table of processes
+	Time      time_t  // used in cpu calcs
+	Total     float64 // total jiffies in the proctab
 
 	ColorTheme styles.Theme
 
@@ -41,6 +43,8 @@ func DefaultState() State {
 		MaxStamps: 120,
 		PidMap:    PIDMap{},
 		Top:       ProcTab{},
+		Time:      defaultTime_t(),
+		Total:     0.0,
 
 		// this is just the default;
 		// intended to be overwritten by a config

@@ -43,7 +43,7 @@ func TopCpu(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 				}
 			}
 
-			cpu := fmtPc(pcs[i])
+			cpu := fmtPc(pcs[i] / stt.Total)
 			x := br.X - pcSp
 			for i := 0; i < 4; i++ {
 				scr.SetContent(x+i, y, rune(cpu[i]), empt, stt.ColorTheme.MainStyle)

@@ -14,12 +14,11 @@ type ProcTab map[float64][]string
 func (stt *State) RefreshProcTab() {
 	stt.Top.flush()
 
-	cpu := float64(stt.Cpu.Sum - stt.Cpu.SumPrev)
-	if cpu == 0 {
-		// try to prevent divide-by-zero
-		// probably rare, but eh
-		return
-	}
+	// jiffydiff
+	jifdif := float64(stt.Cpu.Sum - stt.Cpu.SumPrev)
+
+	// total jiffies
+	ttl := 0.0
 
 	// TODOOOOO this computation isn't quite there
 
@@ -27,7 +26,9 @@ func (stt *State) RefreshProcTab() {
 
 		// TODOO needs * Cpu cores
 
-		ps := 100 * float64(val.Cur()-val.Prev()) / cpu
+		// ps := 100.0 * float64(val.Cur()-val.Prev()) / cpu
+		ps := float64(val.Cur()-val.Prev()) / jifdif
+		ttl += ps
 
 		if procs, ok := stt.Top[ps]; ok {
 			procs = append(procs, val.Name())
@@ -36,6 +37,8 @@ func (stt *State) RefreshProcTab() {
 			stt.Top[ps] = []string{val.Name()}
 		}
 	}
+
+	stt.Total = ttl
 }
 
 // Removes old process data that was ephemeral anyway.
@@ -55,15 +58,3 @@ func (pt ProcTab) Percents() []float64 {
 	sort.Float64s(pcs)
 	return pcs
 }
-
-// for f := range pmap {
-// 	pcs = append(pcs, f)
-// }
-// sort.Float64s(pcs)
-
-// for _, f := range pcs {
-// 	nStrs := pmap[f]
-// 	for _, s := range nStrs {
-// 		procNames = append(procNames, s)
-// 	}
-// }

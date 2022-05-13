@@ -126,5 +126,5 @@ func cprint(txt, percent string, onQ, isFocused bool) string {
 		return fmt.Sprintf("%c%v%v", arrow, txt, percent)
 	}
 
-	return fmt.Sprintf("  %v%v", txt, percent)
+	return fmt.Sprintf("   %v%v", txt, percent)
 }

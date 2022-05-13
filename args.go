@@ -34,8 +34,10 @@ func parseArgs(args []string) {
 			// if err != nil {
 			// 	panic(err)
 			// }
-
-			fmt.Println(stt.Top)
+			ls := stt.Top.Percents()
+			for _, f := range ls {
+				fmt.Println(f/stt.Total, stt.Top[f])
+			}
 
 			time.Sleep(time.Second)
 		}

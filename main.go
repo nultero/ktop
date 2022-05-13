@@ -31,8 +31,8 @@ func main() {
 		panic(err)
 	}
 
-	// stt.ColorTheme = styles.CyberPunkTheme()
-	stt.ColorTheme = styles.CrystalTheme()
+	stt.ColorTheme = styles.CyberPunkTheme()
+	// stt.ColorTheme = styles.CrystalTheme()
 
 	screen, err := tcell.NewScreen()
 	if err != nil {
