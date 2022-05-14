@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"ktop/kproc"
 	"ktop/state"
+	"ktop/styles"
 	"os"
 	"time"
 )
@@ -13,7 +14,7 @@ const dvnull = "/dev/null"
 // Checks for certain flags and otherwise prints things
 // like help if those flags are present, but otherwise
 // does nothing.
-func parseArgs(args []string) {
+func parseArgs(args []string, stt *state.State) {
 
 	//
 	// TODOO obviously, set up a minimal help and a porcelain flag
@@ -36,11 +37,19 @@ func parseArgs(args []string) {
 			// }
 			ls := stt.Top.Percents()
 			for _, f := range ls {
-				fmt.Println(f/stt.Total, stt.Top[f])
+				fmt.Printf(
+					"%.2f\t%v\t%v\n",
+					f/stt.Cpu.Last(),
+					stt.Top[f],
+					stt.Cpu.Last(),
+				)
 			}
 
 			time.Sleep(time.Second)
 		}
+	} else if args[0] == "--cyberpunk" {
+		stt.ColorTheme = styles.CyberPunkTheme()
+		funcQuits = false
 	}
 
 	b := []byte{}

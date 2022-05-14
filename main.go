@@ -23,16 +23,15 @@ func init() {
 
 func main() {
 
-	parseArgs(os.Args[1:])
-
 	stt := state.DefaultState()
 	err := kproc.Top(&stt)
 	if err != nil {
 		panic(err)
 	}
+	stt.ColorTheme = styles.CrystalTheme()
 
-	stt.ColorTheme = styles.CyberPunkTheme()
-	// stt.ColorTheme = styles.CrystalTheme()
+	// maybe leave args here to overwrite default state
+	parseArgs(os.Args[1:], &stt)
 
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -76,7 +75,7 @@ renderloop:
 		case <-quit:
 			break renderloop
 
-		case <-time.After(stt.PollRate):
+		case <-time.After(stt.Time.PollRate):
 		}
 
 		err := kproc.Top(&stt)

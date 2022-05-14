@@ -36,8 +36,6 @@ func DefaultState() State {
 		Cursor: 0, // corresponds to CPU in ../viewmap.go
 		Quad:   QuadTopRight,
 
-		PollRate: 200 * time.Millisecond,
-
 		Cpu:       defaultCpu_t(),
 		Mem:       defaultMem_t(),
 		MaxStamps: 120,

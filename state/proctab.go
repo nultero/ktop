@@ -15,7 +15,7 @@ func (stt *State) RefreshProcTab() {
 	stt.Top.flush()
 
 	// jiffydiff
-	jifdif := float64(stt.Cpu.Sum - stt.Cpu.SumPrev)
+	// jifdif := float64(stt.Cpu.Sum - stt.Cpu.SumPrev)
 
 	// total jiffies
 	ttl := 0.0
@@ -27,7 +27,8 @@ func (stt *State) RefreshProcTab() {
 		// TODOO needs * Cpu cores
 
 		// ps := 100.0 * float64(val.Cur()-val.Prev()) / cpu
-		ps := float64(val.Cur()-val.Prev()) / jifdif
+		// ps := float64(val.Cur()-val.Prev()) / jifdif
+		ps := float64(val.Cur() - val.Prev())
 		ttl += ps
 
 		if procs, ok := stt.Top[ps]; ok {
@@ -37,6 +38,15 @@ func (stt *State) RefreshProcTab() {
 			stt.Top[ps] = []string{val.Name()}
 		}
 	}
+
+	// for k := range stt.Top {
+	// 	val := stt.Top[k]
+	// 	delete(stt.Top, k)
+	// 	// k /= ttl
+	// 	// k *= 100.0
+	// 	// k /= stt.Cpu.Last()
+	// 	stt.Top[k] = val
+	// }
 
 	stt.Total = ttl
 }

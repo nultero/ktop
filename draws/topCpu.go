@@ -9,7 +9,7 @@ import (
 
 const (
 	// spaces to save to format the percentages
-	pcSp       = 6
+	pcSp       = 7
 	multidigit = 10.0
 )
 
@@ -37,13 +37,16 @@ func TopCpu(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 		y := br.Y - hd
 		if procSl, ok := stt.Top[pcs[i]]; ok {
 			pname := procSl[0]
-			for i, r := range pname {
-				if lx+i < ox-pcSp {
-					scr.SetContent(lx+i, y, r, empt, stt.ColorTheme.MainStyle)
+
+			for i := 0; lx+i < ox-pcSp; i++ {
+				if i < len(pname) {
+					scr.SetContent(lx+i, y, rune(pname[i]), empt, stt.ColorTheme.MainStyle)
+				} else {
+					scr.SetContent(lx+i, y, space, empt, stt.ColorTheme.MainStyle)
 				}
 			}
 
-			cpu := fmtPc(pcs[i] / stt.Total)
+			cpu := fmtPc(100.0 * pcs[i])
 			x := br.X - pcSp
 			for i := 0; i < 4; i++ {
 				scr.SetContent(x+i, y, rune(cpu[i]), empt, stt.ColorTheme.MainStyle)
@@ -149,8 +152,8 @@ func TopCpu(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 
 func fmtPc(f float64) string {
 	if f < multidigit {
-		return fmt.Sprintf(" %.2f", f)
+		return fmt.Sprintf(" %.3f", f)
 	}
 
-	return fmt.Sprintf("%.2f", f)
+	return fmt.Sprintf("%.3f", f)
 }

@@ -81,6 +81,11 @@ func Io(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 		return
 	}
 
+	sty := stt.ColorTheme.InactiveStyle
+	if onQ {
+		sty = stt.ColorTheme.MainStyle
+	}
+
 	for i := len(stt.Cpu.Stamps) - 1; i > 0; i-- {
 
 		if xdiff == 0 {
@@ -93,11 +98,6 @@ func Io(scr tcell.Screen, stt *state.State, q state.Quadrant) {
 		dots := int(math.Round(
 			float64(charh) * stt.Cpu.Stamps[i] / 100.0,
 		))
-
-		sty := stt.ColorTheme.MainStyle
-		if onQ {
-			sty = stt.ColorTheme.AccentStyle
-		}
 
 		for y > tl.Y+1 {
 			if dots == 0 {
