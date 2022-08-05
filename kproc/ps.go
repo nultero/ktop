@@ -51,7 +51,7 @@ func readProcfs(stt *state.State) error {
 			pidSet[pid] = struct{}{}
 
 			if _, ok := stt.PidMap[pid]; ok {
-				err := stt.PidMap.UpdateProc(pid, utime, stime)
+				err := stt.PidMap.UpdateProc(pid, utime, stime, stt.Cpu.SumNoIdle, stt.Cpu.Last())
 				if err != nil {
 					e := fmt.Errorf(
 						"error updating pid '%v' bytes: %w", f.Name(), err,
@@ -63,7 +63,7 @@ func readProcfs(stt *state.State) error {
 					}
 				}
 			} else if !ok {
-				stt.PidMap.NewProc(name, pid, utime, stime)
+				stt.PidMap.NewProc(name, pid, utime, stime, stt.Cpu.SumNoIdle, stt.Cpu.Last())
 			}
 		}
 	}

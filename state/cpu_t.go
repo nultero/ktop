@@ -5,18 +5,20 @@ import (
 )
 
 type cpu_t struct {
-	LCI     int // last CPU idle %, used for PollCPU
-	Stamps  []float64
-	Sum     int // CPU jiffies currently in play
-	SumPrev int // CPU jiffies previous
+	LCI       int // last CPU idle %, used for PollCPU
+	Stamps    []float64
+	Sum       int     // CPU jiffies currently in play
+	SumNoIdle float64 // CPU jiffies currently in play
+	SumPrev   int     // CPU jiffies previous
 }
 
 func defaultCpu_t() cpu_t {
 	return cpu_t{
-		LCI:     0,
-		Stamps:  []float64{},
-		Sum:     0,
-		SumPrev: 0,
+		LCI:       0,
+		Stamps:    []float64{},
+		Sum:       0,
+		SumNoIdle: 0.0,
+		SumPrev:   0,
 	}
 }
 

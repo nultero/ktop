@@ -10,14 +10,7 @@ import (
 // for process table info.
 func Top(stt *state.State) error {
 
-	err := stt.InitHandles()
-	if err != nil {
-		return fmt.Errorf(
-			"err initializing file handles in procfs: %w", err,
-		)
-	}
-
-	err = pollCPU(stt)
+	err := pollCPU(stt)
 	if err != nil {
 		return fmt.Errorf(
 			"err polling CPU stats: %w", err,
@@ -39,6 +32,7 @@ func Top(stt *state.State) error {
 	}
 
 	stt.RefreshProcTab()
+	stt.Handles.Reset()
 
 	return nil
 }

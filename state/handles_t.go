@@ -10,25 +10,29 @@ type FileHandles struct {
 	KMeminfo  *os.File
 }
 
-func (stt *State) InitHandles() error {
+func (h *FileHandles) Reset() {
+	h.KProcStat.Seek(0, 0)
+	h.KMeminfo.Seek(0, 0)
+}
+
+func InitHandles() (FileHandles, error) {
 	h := FileHandles{}
 
 	f, err := os.Open("/proc/stat")
 	if err != nil {
-		return fmt.Errorf("err from reading /proc/stat: %w", err)
+		return h, fmt.Errorf("err from reading /proc/stat: %w", err)
 	}
 
 	h.KProcStat = f
 
 	f, err = os.Open("/proc/meminfo")
 	if err != nil {
-		return fmt.Errorf("err from reading /proc/meminfo: %w", err)
+		return h, fmt.Errorf("err from reading /proc/meminfo: %w", err)
 	}
 
 	h.KMeminfo = f
 
-	stt.Handles = h
-	return nil
+	return h, nil
 }
 
 func (h FileHandles) CloseAll() {

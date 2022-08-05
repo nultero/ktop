@@ -34,11 +34,17 @@ type State struct {
 }
 
 func DefaultState() State {
+
+	h, err := InitHandles()
+	if err != nil {
+		panic(err)
+	}
+
 	return State{
 		Cursor: 0, // corresponds to CPU in ../viewmap.go
 		Quad:   QuadTopRight,
 
-		Handles: FileHandles{},
+		Handles: h,
 
 		Cpu:       defaultCpu_t(),
 		Mem:       defaultMem_t(),

@@ -13,22 +13,10 @@ type ProcTab map[float64][]string
 // Top calls).
 func (stt *State) RefreshProcTab() {
 	stt.Top.flush()
-
-	// jiffydiff
-	// jifdif := float64(stt.Cpu.Sum - stt.Cpu.SumPrev)
-
-	// total jiffies
 	ttl := 0.0
 
-	// TODOOOOO this computation isn't quite there
-
 	for _, val := range stt.PidMap {
-
-		// TODOO needs * Cpu cores
-
-		// ps := 100.0 * float64(val.Cur()-val.Prev()) / cpu
-		// ps := float64(val.Cur()-val.Prev()) / jifdif
-		ps := float64(val.Cur() - val.Prev())
+		ps := val.cpuPc
 		ttl += ps
 
 		if procs, ok := stt.Top[ps]; ok {
@@ -38,15 +26,6 @@ func (stt *State) RefreshProcTab() {
 			stt.Top[ps] = []string{val.Name()}
 		}
 	}
-
-	// for k := range stt.Top {
-	// 	val := stt.Top[k]
-	// 	delete(stt.Top, k)
-	// 	// k /= ttl
-	// 	// k *= 100.0
-	// 	// k /= stt.Cpu.Last()
-	// 	stt.Top[k] = val
-	// }
 
 	stt.Total = ttl
 }
