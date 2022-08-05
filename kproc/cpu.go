@@ -9,7 +9,7 @@ import (
 )
 
 func pollCPU(stt *state.State) error {
-	bytes, err := cpuBytes()
+	bytes, err := cpuBytes(stt.Handles.KProcStat)
 	if err != nil {
 		return err
 	}
@@ -67,15 +67,10 @@ func readBytes(cpuBytes []byte) ([]int, error) {
 }
 
 // Equivalent to `head -n 1 /proc/stat`. First line of summary CPU stats.
-func cpuBytes() ([]byte, error) {
+// The stt.Handles.KProcStat fd being passed in is /proc/stat.
+func cpuBytes(f *os.File) ([]byte, error) {
 	bytes := []byte{}
 	cpuBytes := make([]byte, 64)
-
-	f, err := os.Open("/proc/stat")
-	defer f.Close()
-	if err != nil {
-		return bytes, fmt.Errorf("err from reading /proc/stat: %w", err)
-	}
 
 statloop: // probably a simpler way to do this
 	for {

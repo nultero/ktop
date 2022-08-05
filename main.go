@@ -12,7 +12,11 @@ import (
 )
 
 /*
-	TODO config somewhere
+	~~TODO~~ config somewhere
+	Instead of config, maybe have a large
+	args list?
+	That way they can just be aliased, no file
+	wonkery needed
 */
 
 const minX, minY = 30, 16
@@ -89,10 +93,11 @@ renderloop:
 		}
 
 		if isDrawable(screen.Size()) {
-			// stdDraw(screen, &stt)
-			draws.Io(screen, &stt, state.QuadTopRight)
-			draws.Io(screen, &stt, state.QuadBottomRight)
 			draws.TopCpu(screen, &stt, state.QuadTopLeft)
+			draws.Io(screen, &stt, state.QuadTopRight)
+
+			// TODO - bottom left is netwk?
+			draws.Io(screen, &stt, state.QuadBottomRight)
 			draws.Io(screen, &stt, state.QuadBottomLeft)
 		} else {
 			draws.Invalid(screen, stt.ColorTheme.MainStyle, minX, minY)

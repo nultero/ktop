@@ -10,7 +10,7 @@ import (
 const spc = ' '
 
 func pollMem(stt *state.State) error {
-	bytes, err := memBytes()
+	bytes, err := memBytes(stt.Handles.KMeminfo)
 	if err != nil {
 		return err
 	}
@@ -67,14 +67,8 @@ func getMem(bytes []byte) (float64, error) {
 	return fl, nil
 }
 
-func memBytes() ([]byte, error) {
+func memBytes(f *os.File) ([]byte, error) {
 	bytes := []byte{}
-	f, err := os.Open("/proc/meminfo")
-	defer f.Close()
-	if err != nil {
-		return bytes, err
-	}
-
 	membytes := make([]byte, 200)
 	newlines := 0
 
