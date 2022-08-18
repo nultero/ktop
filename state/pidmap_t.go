@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+type PIDMap map[uint64]proc_t
+
 // Adds a new process to the proctable.
 func (pm PIDMap) NewProc(
 	name string, pid uint64,
@@ -28,19 +30,10 @@ func (pm PIDMap) UpdateProc(
 	utime, stime int64,
 	cpuSum, cpuLast float64,
 ) error {
-	if proc, ok := pm[pid]; ok {
-		proc.utime[0] = proc.utime[1]
-		proc.utime[1] = utime
 
-		proc.stime[0] = proc.stime[1]
-		proc.stime[1] = stime
-
-		diffU := utime - proc.utime[0]
-		diffS := stime - proc.stime[0]
-
-		slicePc := float64(diffU+diffS) / cpuSum
-		proc.cpuPc = cpuLast * slicePc
-
+	var proc proc_t
+	if procObj, ok := pm[pid]; ok {
+		proc = procObj
 	} else {
 		return errors.New(
 			fmt.Sprintf(
@@ -49,6 +42,20 @@ func (pm PIDMap) UpdateProc(
 			),
 		)
 	}
+
+	proc.utime[0] = proc.utime[1]
+	proc.utime[1] = utime
+
+	proc.stime[0] = proc.stime[1]
+	proc.stime[1] = stime
+
+	diffU := utime - proc.utime[0]
+	diffS := stime - proc.stime[0]
+
+	slicePc := float64(diffU+diffS) / cpuSum
+	proc.cpuPc = slicePc * cpuLast
+
+	pm[pid] = proc
 
 	return nil
 }

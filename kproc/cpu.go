@@ -19,6 +19,21 @@ func pollCPU(stt *state.State) error {
 		return err
 	}
 
+	if len(stt.Cpu.Slices) == 2 {
+		prev := stt.Cpu.Slices[0]
+		diffSum := 0
+		for i, n := range nums {
+			v := n - prev[i]
+			prev[i] = nums[i]
+			nums[i] = v
+			diffSum += v
+		}
+		stt.Cpu.DiffSum = diffSum
+
+	} else {
+		stt.Cpu.Slices = append(stt.Cpu.Slices, nums)
+	}
+
 	curSum := 0
 	for _, n := range nums {
 		curSum += n

@@ -8,8 +8,6 @@ import (
 
 type log []string
 
-type PIDMap map[uint64]proc_t
-
 type State struct {
 	Cursor View     // The active component within the focused quad
 	Quad   Quadrant // The focused quadrant within the entire terminal frame.

@@ -6,6 +6,8 @@ import (
 
 type cpu_t struct {
 	LCI       int // last CPU idle %, used for PollCPU
+	Slices    [][]int
+	DiffSum   int
 	Stamps    []float64
 	Sum       int     // CPU jiffies currently in play
 	SumNoIdle float64 // CPU jiffies currently in play
@@ -15,6 +17,8 @@ type cpu_t struct {
 func defaultCpu_t() cpu_t {
 	return cpu_t{
 		LCI:       0,
+		DiffSum:   0,
+		Slices:    [][]int{},
 		Stamps:    []float64{},
 		Sum:       0,
 		SumNoIdle: 0.0,
