@@ -1,41 +1,33 @@
 package state
 
-import (
-	"fmt"
-	"os"
+import "os"
+
+const (
+	cpu = "/proc/stat"
 )
 
-type FileHandles struct {
-	KProcStat *os.File
-	KMeminfo  *os.File
+type handles_t struct {
+	Cpu *os.File
 }
 
-func (h *FileHandles) Reset() {
-	h.KProcStat.Seek(0, 0)
-	h.KMeminfo.Seek(0, 0)
-}
-
-func InitHandles() (FileHandles, error) {
-	h := FileHandles{}
-
-	f, err := os.Open("/proc/stat")
+// Opens a lot of the necessary /proc/ files.
+func (h *handles_t) init() error {
+	f, err := os.Open(cpu)
 	if err != nil {
-		return h, fmt.Errorf("err from reading /proc/stat: %w", err)
+		return err
 	}
+	h.Cpu = f
 
-	h.KProcStat = f
-
-	f, err = os.Open("/proc/meminfo")
-	if err != nil {
-		return h, fmt.Errorf("err from reading /proc/meminfo: %w", err)
-	}
-
-	h.KMeminfo = f
-
-	return h, nil
+	return nil
 }
 
-func (h FileHandles) CloseAll() {
-	h.KProcStat.Close()
-	h.KMeminfo.Close()
+// Closes **ALL** the open file handles.
+func (h *handles_t) Close() {
+	h.Cpu.Close()
+}
+
+// Aggregates all of the file's readers to their file starts.
+// Convenience method for the Collect() call in the proc dir.
+func (h *handles_t) Reset() {
+	h.Cpu.Seek(0, 0)
 }

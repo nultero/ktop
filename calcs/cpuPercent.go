@@ -1,0 +1,21 @@
+package calcs
+
+import "ktop/state"
+
+func CpuPercent(stt *state.State) {
+	sum := 0
+	for _, n := range stt.Cpu.Cur {
+		sum += n
+	}
+
+	delta := sum - stt.Cpu.LastSum
+
+	idle := stt.Cpu.Cur[3] - stt.Cpu.LastCPUIdle
+	stt.Cpu.LastCPUIdle = stt.Cpu.Cur[3]
+
+	stt.Cpu.LastSum = sum
+
+	used := delta - idle
+
+	stt.Cpu.LastCPUPercent = 100.0 * (float32(used) / float32(delta))
+}

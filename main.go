@@ -1,8 +1,6 @@
 package main
 
 import (
-	"ktop/draws"
-	"ktop/kproc"
 	"ktop/state"
 	"ktop/styles"
 	"os"
@@ -27,12 +25,16 @@ func init() {
 
 func main() {
 
-	stt := state.DefaultState()
-	err := kproc.Top(&stt)
+	stt, err := state.Default()
 	if err != nil {
 		panic(err)
 	}
-	stt.ColorTheme = styles.CrystalTheme()
+
+	// err = kproc.Top(&stt)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	stt.Theme = styles.CrystalTheme()
 
 	// maybe leave args here to overwrite default state
 	parseArgs(os.Args[1:], &stt)
@@ -46,68 +48,65 @@ func main() {
 	}
 
 	screen.HideCursor()
-	screen.SetStyle(stt.ColorTheme.MainStyle)
+	screen.SetStyle(stt.Theme.MainStyle)
 	screen.Clear()
 
 	quit := make(chan struct{})
+	rerender := make(chan struct{})
 	go func() {
 		for {
 			ev := screen.PollEvent()
 			switch ev := ev.(type) {
 			case *tcell.EventKey:
 				switch ev.Key() {
+
 				case tcell.KeyDown, tcell.KeyUp, tcell.KeyRight, tcell.KeyLeft:
-					stt.MoveQuad(ev.Key())
+					// stt.MoveQuad(ev.Key())
+					rerender <- struct{}{}
 
 				case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyCtrlC, tcell.KeyCtrlQ:
 					quit <- struct{}{}
 					close(quit)
 					return
+
 				case tcell.KeyCtrlL:
 					screen.Sync()
 				}
+
 			case *tcell.EventResize:
-				stt.NeedsRedraw = true
 				screen.Sync()
+				rerender <- struct{}{}
 			}
 		}
 	}()
 
-renderloop:
+mainloop:
 	for {
 		select {
 		case <-quit:
-			break renderloop
+			break mainloop
+
+		case <-rerender:
 
 		case <-time.After(stt.Time.PollRate):
+
 		}
 
-		err := kproc.Top(&stt)
-		if err != nil {
-			panic(err)
-		}
+		// if isDrawable(screen.Size()) {
+		// 	draws.TopCpu(screen, &stt, state.QuadTopLeft)
+		// 	draws.Io(screen, &stt, state.QuadTopRight)
 
-		if stt.NeedsRedraw {
-			draws.Refresh(screen, &stt)
-			stt.NeedsRedraw = false
-		}
-
-		if isDrawable(screen.Size()) {
-			draws.TopCpu(screen, &stt, state.QuadTopLeft)
-			draws.Io(screen, &stt, state.QuadTopRight)
-
-			// TODO - bottom left is netwk?
-			draws.Io(screen, &stt, state.QuadBottomRight)
-			draws.Io(screen, &stt, state.QuadBottomLeft)
-		} else {
-			draws.Invalid(screen, stt.ColorTheme.MainStyle, minX, minY)
-		}
+		// 	// TODO - bottom left is netwk?
+		// 	draws.Io(screen, &stt, state.QuadBottomRight)
+		// 	draws.Io(screen, &stt, state.QuadBottomLeft)
+		// } else {
+		// 	draws.Invalid(screen, stt.ColorTheme.MainStyle, minX, minY)
+		// }
 
 		screen.Show() // only calling this once ✓
 	}
 
 	screen.Fini()
-	stt.Log.Dump()
 }
 
 func isDrawable(x, y int) bool {
