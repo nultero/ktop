@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ktop/draw"
 	"ktop/state"
 	"ktop/styles"
 	"os"
@@ -89,7 +90,7 @@ mainloop:
 		case <-rerender:
 
 		case <-time.After(stt.Time.PollRate):
-
+			draw.Cpu(screen, stt)
 		}
 
 		// if isDrawable(screen.Size()) {

@@ -29,10 +29,17 @@ func parseArgs(args []string, stt *state.State) {
 		for {
 			proc.Collect(stt)
 			calcs.Aggregate(stt)
-			fmt.Printf(
-				"%.2f%%\n",
+			s := fmt.Sprintf(
+				"%.2f%%",
 				stt.Cpu.LastCPUPercent,
 			)
+			bytes := []byte(s)
+			for _, b := range bytes {
+				fmt.Print(string(b), " ")
+			}
+
+			fmt.Print("\n")
+
 			time.Sleep(stt.Time.PollRate)
 		}
 	}
