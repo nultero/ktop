@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"ktop/calcs"
 	"ktop/proc"
 	"ktop/state"
@@ -29,16 +28,6 @@ func parseArgs(args []string, stt *state.State) {
 		for {
 			proc.Collect(stt)
 			calcs.Aggregate(stt)
-			s := fmt.Sprintf(
-				"%.2f%%",
-				stt.Cpu.LastCPUPercent,
-			)
-			bytes := []byte(s)
-			for _, b := range bytes {
-				fmt.Print(string(b), " ")
-			}
-
-			fmt.Print("\n")
 
 			time.Sleep(stt.Time.PollRate)
 		}

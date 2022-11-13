@@ -1,12 +1,15 @@
+#!/usr/bin/env python3
 from time import sleep
 
-
+from sys import argv as args
 '''
 total jiffies is fairly low
 but individual proc jifs is fairly low
 
 what exactly is going on with the proc%?
 '''
+args = args[1:]
+arg = args[0]
 
 sl = [0, 0, 0, 0]
 prev = []
@@ -33,7 +36,7 @@ while True:
         used = delta - idle
         cpuLast = 100.0 * (float(used) / float(delta))
 
-    with open('/proc/%s/stat', 'r') as f:
+    with open(f'/proc/{arg}/stat', 'r') as f:
         s = f.read(200)
         subs = ""
         for c in s:
@@ -72,7 +75,7 @@ while True:
         
             ttl = sum(sl[2:])
             pc = ttl / sstr
-            print(" "*6, f"{pc * cpuLast:.2f}%  -> top percent: {pc * cpuPC * 8:.2f}%")
+            print(" "*6, f"{pc * cpuLast:.2f}%  -> top percent: {pc * cpuLast * 8:.2f}%")
 
     
     sleep(0.40)

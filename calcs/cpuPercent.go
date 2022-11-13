@@ -17,5 +17,5 @@ func CpuPercent(stt *state.State) {
 
 	used := delta - idle
 
-	stt.Cpu.LastCPUPercent = 100.0 * (float32(used) / float32(delta))
+	stt.Cpu.LastCPUPercent = 100.0 * (float64(used) / float64(delta))
 }

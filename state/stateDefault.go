@@ -13,6 +13,9 @@ func Default() (State, error) {
 		s.Handles = h
 	}
 
+	s.Components = [4]Comp{}
+	s.Quads = [4]Quad{}
+
 	s.Cpu = cpu_t{
 		Prev:           []int{},
 		Cur:            []int{},
