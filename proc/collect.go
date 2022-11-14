@@ -16,6 +16,11 @@ func Collect(s *state.State) error {
 		return err
 	}
 
+	err = getProcFsStats(s)
+	if err != nil {
+		return err
+	}
+
 	s.Handles.Reset()
 	return nil
 }

@@ -56,7 +56,6 @@ func getMem(bytes []byte) (float64, error) {
 		Kb 1 should be MemAvail
 			100 * (1 - (k1 / k0)) = percent RAM used
 			( over range [0,1] )
-		See test case for example
 	*/
 
 	fl := 100.0 * (1.0 - (float64(kilobytes[1]) / float64(kilobytes[0])))

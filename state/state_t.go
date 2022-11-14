@@ -14,6 +14,11 @@ type State struct {
 	Cpu        cpu_t   // Keeps two unaltered CPU stamp slices, and the last CPU sums and idles.
 	Mem        stamps_t
 
+	ProcessMap      procMap
+	SortedProcesses sortedProcMap
+
+	Log []string
+
 	StampLimit int
 
 	Time time_t

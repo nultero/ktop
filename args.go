@@ -30,8 +30,9 @@ func parseArgs(args []string, stt *state.State) {
 			proc.Collect(stt)
 			calcs.Aggregate(stt)
 
-			s := stt.Cpu.Stamps.GetLastN(10)
-			fmt.Println(s, stt.Cpu.Stamps)
+			for _, p := range stt.SortedProcesses.Keys {
+				fmt.Println(p*100.0, stt.SortedProcesses.Map[p])
+			}
 
 			time.Sleep(stt.Time.PollRate)
 		}
