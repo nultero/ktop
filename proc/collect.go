@@ -11,6 +11,11 @@ func Collect(s *state.State) error {
 		return err
 	}
 
+	err = getMemStats(s)
+	if err != nil {
+		return err
+	}
+
 	s.Handles.Reset()
 	return nil
 }

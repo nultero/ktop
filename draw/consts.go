@@ -9,3 +9,17 @@ const (
 	mem        = "MEM: "
 	lineChar   = '─'
 )
+
+var pips = []rune{
+	' ',
+	'⡀',
+	'⡄',
+	'⡆',
+	'⡇',
+	// '⣇',
+	// '⣧',
+	// '⣷',
+	// '⣿',
+}
+
+var pipslen = float64(len(pips))

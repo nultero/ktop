@@ -12,6 +12,7 @@ type State struct {
 	Components [4]Comp // The ordered slice of components on the screen
 	Quads      [4]Quad // Corresponds to the indices of the Components struct
 	Cpu        cpu_t   // Keeps two unaltered CPU stamp slices, and the last CPU sums and idles.
+	Mem        stamps_t
 
 	StampLimit int
 

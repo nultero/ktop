@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"ktop/calcs"
 	"ktop/proc"
 	"ktop/state"
@@ -28,6 +29,9 @@ func parseArgs(args []string, stt *state.State) {
 		for {
 			proc.Collect(stt)
 			calcs.Aggregate(stt)
+
+			s := stt.Cpu.Stamps.GetLastN(10)
+			fmt.Println(s, stt.Cpu.Stamps)
 
 			time.Sleep(stt.Time.PollRate)
 		}

@@ -16,17 +16,25 @@ func (s *stamps_t) Add(stamp float64) {
 	}
 }
 
+func (s *stamps_t) GetLast() float64 {
+	if s.Idx == 0 {
+		return s.Data[len(s.Data)-1]
+	}
+	return s.Data[s.Idx-1]
+}
+
 func (s *stamps_t) GetLastN(n int) []float64 {
 	vals := make([]float64, n+1)
-	for idx := s.Idx; n > 0; n-- {
-		if s.Data[s.Idx] == stamps_t_null {
+	idx := s.Idx - 1
+	for ; n > 0; n-- {
+		if idx == -1 {
+			idx = len(s.Data) - 1
+		}
+		if s.Data[idx] == stamps_t_null {
 			break
 		}
 		vals[n] = s.Data[idx]
 		idx--
-		if idx == -1 {
-			idx = len(s.Data) - 1
-		}
 	}
 
 	return vals

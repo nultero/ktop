@@ -34,6 +34,8 @@ func Default() (State, error) {
 		Stamps:         newStamps_t(s.StampLimit),
 	}
 
+	s.Mem = newStamps_t(s.StampLimit)
+
 	s.Time = time_t{
 		PollRate: 800 * time.Millisecond,
 	}
