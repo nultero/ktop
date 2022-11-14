@@ -13,6 +13,8 @@ type State struct {
 	Quads      [4]Quad // Corresponds to the indices of the Components struct
 	Cpu        cpu_t   // Keeps two unaltered CPU stamp slices, and the last CPU sums and idles.
 
+	StampLimit int
+
 	Time time_t
 
 	Theme styles.Theme

@@ -13,6 +13,8 @@ func Default() (State, error) {
 		s.Handles = h
 	}
 
+	s.StampLimit = 100
+
 	s.Components = [4]Comp{
 		TableOfProcs, // QUpperLeft
 		IoCpu,        // QUpperRight
@@ -29,6 +31,7 @@ func Default() (State, error) {
 		LastCPUIdle:    0,
 		LastCPUPercent: 0,
 		LastSum:        0,
+		Stamps:         newStamps_t(s.StampLimit),
 	}
 
 	s.Time = time_t{

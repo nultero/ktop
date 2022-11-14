@@ -6,6 +6,7 @@ type cpu_t struct {
 	LastCPUIdle    int
 	LastCPUPercent float64
 	LastSum        int
+	Stamps         stamps_t
 }
 
 // Pushes current to previous and sets current to newest
