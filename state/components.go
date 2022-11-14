@@ -3,8 +3,14 @@ package state
 type Comp uint8
 
 const (
-	Io           Comp = 0
-	TableOfProcs Comp = 1
-	Net          Comp = 2
-	Menu         Comp = 7
+	IoCpu Comp = iota
+	IoMem
+	TableOfProcs
+	Net
+	Disk
+	Menu
 )
+
+func (s *State) GetComponentInQuad(q Quad) Comp {
+	return s.Components[q]
+}

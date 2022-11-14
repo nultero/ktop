@@ -9,9 +9,7 @@ type cpu_t struct {
 }
 
 // Pushes current to previous and sets current to newest
-// #file data from /proc/stat.
-//
-//	fmt.Printf("$i")
+// file data from /proc/stat.
 func (c *cpu_t) Add(nums []int) {
 	c.Prev = c.Cur
 	c.Cur = nums

@@ -13,8 +13,15 @@ func Default() (State, error) {
 		s.Handles = h
 	}
 
-	s.Components = [4]Comp{}
-	s.Quads = [4]Quad{}
+	s.Components = [4]Comp{
+		TableOfProcs, // QUpperLeft
+		IoCpu,        // QUpperRight
+		Net,          // QBtmLeft
+		Disk,         // QBtmRight
+	}
+
+	// redundant, but makes for a nice consumer api in /draw dir
+	s.Quads = [4]Quad{0, 1, 2, 3}
 
 	s.Cpu = cpu_t{
 		Prev:           []int{},

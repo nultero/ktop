@@ -95,7 +95,8 @@ loop:
 		}
 
 		if isDrawable(screen.Size()) {
-			draw.Cpu(screen, stt)
+			// draw.Cpu(screen, stt)
+			draw.Draw(screen, &stt)
 		} else {
 			draw.Invalid(screen, stt.Theme.MainStyle)
 		}

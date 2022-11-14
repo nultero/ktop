@@ -16,5 +16,4 @@ func Invalid(scr tcell.Screen, sty tcell.Style) {
 			i, y, rune(msg[i]), emptyChars, sty,
 		)
 	}
-
 }
